@@ -1,0 +1,12 @@
+{
+    "watch": [
+        "*.py"
+    ],
+    "ignore": [
+        "*__pycache__*",
+        "*.log",
+        "*.scss",
+        "test.py"
+    ],
+    "debug": false
+}

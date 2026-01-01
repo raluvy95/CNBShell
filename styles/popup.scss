@@ -1,0 +1,10 @@
+@use "calendar.scss";
+
+#POPUP {
+    padding: 10px;
+    margin: 10px;
+    & .bigclock {
+        font-size: 30px;
+        font-weight: bold;
+    }
+}

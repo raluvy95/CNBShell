@@ -1,0 +1,59 @@
+@use "pattern.scss" as p;
+@use "workspaces.scss";
+@use "sysmon.scss";
+@use "systray.scss";
+@use "privacy.scss";
+@use "popup.scss";
+@use "notification.scss";
+@use "hyprlang.scss";
+
+* {
+    all: unset;
+    
+    selection {
+        background-color: p.$accent; // High contrast background
+        color: p.$base;           // Dark text
+        font-weight: bold;
+    }
+}
+
+#ROOT {
+    font-family: "MesloLGS Nerd Font";
+    font-size: 18px;
+    background-color: p.$crust;
+    padding: 0 10px;
+    color: p.$text;
+}
+
+tooltip {
+    background-color: rgba(p.$base, 0.8);
+    border-radius: 10px;
+}
+
+menu {
+    background-color: p.$base;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+menuitem {
+    padding: 4px 6px;
+    margin: 2px 0;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: p.$surface1;
+    }
+}
+
+separator {
+    background-color: p.$surface2;
+}
+
+#LEFT {
+    .wintitle {
+        font-size: 16px;
+        color: p.$subtext0;
+    }
+}

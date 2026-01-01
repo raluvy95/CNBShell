@@ -1,0 +1,123 @@
+@use "pattern.scss" as p;
+@use "sass:color";
+
+.calendar {
+    &:hover {
+        background-color: p.$surface0;
+        padding: 0 8px;
+        border-radius: 10px;
+    }
+}
+
+/* Container */
+.calendar-root {
+    background-color: p.$base; /* Base Surface Color */
+    padding: 12px;
+    border-radius: 8px;
+    min-width: 220px;
+    border: 2px solid p.$surface0;
+}
+
+/* Header */
+.calendar-header {
+    margin-bottom: 8px;
+}
+
+.cal-title {
+    font-weight: 800;
+    font-size: 16px;
+    color: p.$text;
+}
+
+.cal-title-btn {
+    background: transparent;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: p.$text; /* Catppuccin Text Color example */
+    border: none;
+    padding: 4px 12px;
+
+    &:hover {
+        background: p.$surface0;
+        border-radius: 8px;
+    }
+}
+
+.cal-nav-btn {
+    padding: 4px 12px;
+    background: transparent;
+    font-weight: bold;
+    
+
+    &:hover {
+        background-color: p.$surface0;
+        border-radius: 4px;
+    }
+}
+/* Weekdays Row */
+.cal-weekdays {
+    margin-bottom: 4px;
+}
+
+.cal-day-name {
+    color: p.$overlay1;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 28px; /* Fixed width for alignment */
+    margin: 0 1px;
+}
+
+/* Day Buttons */
+.cal-day-btn {
+    background-color: transparent;
+    color: p.$text;
+    font-size: 13px;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+    border-radius: 14px; /* Circular */
+    transition: background-color 0.2s ease-out;
+
+    &:hover {
+        background-color: p.$surface1;
+    }
+}
+
+.cal-day-empty {
+    min-width: 28px;
+    min-height: 28px;
+}
+
+/* Highlight for Current Day */
+.cal-today {
+    background-color: p.$accent; /* Accent Color */
+    color: p.$crust;
+    font-weight: bolder;
+    &:hover {
+        background-color: color.adjust(p.$accent, $whiteness: 20%);
+    }
+}
+
+.cal-day-empty {
+    min-width: 45px;
+    min-height: 45px;
+}
+
+.selected-day:not(.cal-today) {
+    background-color: p.$surface0;
+    font-weight: 900;
+}
+
+.empty-btn {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: transparent; /* Hide any text */
+}
+
+/* Ensure hovering over empty space doesn't trigger the button hover effect */
+.empty-btn:hover, .empty-btn:active {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}

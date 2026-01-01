@@ -1,0 +1,37 @@
+@use "pattern.scss" as p;
+@use "animation.scss" as a;
+
+#workspaces {
+    > button {
+        background-color: p.$surface0;
+        padding: 0 5px;
+        margin: 7px;
+        margin-left: 0;
+        border-radius: 10px;
+        transition: background-color 0.3s;
+    }
+
+    > button:hover {
+        background-color: p.$overlay0;
+    }
+
+    > button.active {
+        background-color: p.$accent;
+        padding: 0 15px;
+        margin: 7px 5px 7px 0;
+    }
+
+    > button.empty {
+        background-color: p.$base;
+        padding: 0 3px;
+        margin: 9px;
+    }
+    
+    > button.urgent:not(.active) {
+        @include a.flashing-animation;
+        background-color: p.$red;
+        padding: 0 10px;
+        margin: 7px 5px 7px 0;
+    }
+}
+

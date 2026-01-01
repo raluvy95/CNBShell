@@ -1,0 +1,16 @@
+@use "pattern.scss" as p;
+@use "animation.scss" as a;
+
+.privacyind {
+    background-color: p.$red;
+    padding: 0 10px;
+    border-radius: 14px;
+    & > * {
+        @include a.flashing-animation;
+        color: p.$crust;
+    }
+
+    #privacy-mic:nth-child(2) {
+        padding-left: 10px;
+    }
+}

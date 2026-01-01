@@ -1,0 +1,7 @@
+@use "pattern.scss" as p;
+
+.systray {
+    background-color: p.$surface0;
+    padding: 0 10px;
+    border-radius: 15px;
+}

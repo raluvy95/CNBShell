@@ -1,0 +1,15 @@
+@use "pattern.scss" as p;
+@use "animation.scss" as a;
+@use "sass:color";
+
+.sysmon {
+    background-color: p.$teal;
+    color: p.$crust;
+    padding: 0 10px;
+    border-radius: 15px;
+
+    > .warning {
+        @include a.flashing-animation;
+        color: color.adjust(p.$red, $blackness: 20%);
+    }
+}

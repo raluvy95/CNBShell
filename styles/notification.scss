@@ -1,0 +1,36 @@
+// Import the new dashboard styles
+@use "dashboard.scss";
+@use "pattern.scss" as p;
+@use "sass:color";
+
+// --- MAIN INDICATOR BUTTON (Stays in Bar) ---
+button.notification-indicator {
+    background-color: p.$flamingo;
+    padding: 0px 10px;
+    border-radius: 15px;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+        background-color: p.$subtext0;
+    }
+
+    &:active {
+        background-color: p.$accent;
+        color: p.$crust;
+    }
+
+    .txt-icon {
+        font-size: 18px;
+        color: p.$crust;
+    }
+
+    .txt-count {
+        font-weight: bold;
+        color: p.$crust; // Reddish for unread count
+        // margin-left: 4px;
+    }
+
+    > {
+        margin-left: 6px;
+    }
+}

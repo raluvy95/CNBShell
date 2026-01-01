@@ -1,0 +1,222 @@
+// --- DASHBOARD WINDOW ---
+@use "pattern.scss" as p;
+
+window#SYS_DASH {
+    background-color: transparent;
+}
+
+.dashboard-root {
+    background-color: p.$base;
+    border: 1px solid p.$surface0;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    min-width: 380px;
+
+    // --- HEADER SECTION ---
+    .dashboard-header {
+        margin-bottom: 12px;
+
+        .dashboard-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: p.$text();
+        }
+
+        // Header Buttons
+        button {
+            &.dashboard-dnd-btn,
+            &.dashboard-clear-btn,
+            &.dashboard-icon-btn {
+                background-color: p.$surface0;
+                color: p.$text;
+                border-radius: 8px;
+                padding: 6px 10px;
+                border: none;
+                box-shadow: none;
+                transition: all 0.15s ease;
+
+                &:hover {
+                    background-color: p.$surface1; // Surface1
+                }
+                
+                &:active {
+                    background-color: p.$surface2; // Surface2
+                }
+            }
+        }
+
+        .dnd-active {
+            color: p.$red; // Red
+        }
+    }
+
+    // --- SECTIONS ---
+    .user-widgets-area {
+        background-color: p.$surface0;
+        border-radius: 12px;
+        padding: 10px;
+        margin-bottom: 16px;
+        border: 1px dashed p.$surface1;
+        min-height: 50px;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: p.$subtext0;
+        margin-bottom: 8px;
+        margin-left: 4px;
+    }
+
+    // --- QUICK SETTINGS ---
+    .quick-settings {
+        background-color: p.$surface0; 
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 16px;
+        border: 1px solid p.$surface1;
+
+        // Icons & Labels
+        .qs-icon, .qs-icon-label {
+            font-size: 18px;
+            color: p.$text;
+            min-width: 24px;
+        }
+
+        // Buttons
+        button.qs-icon-btn {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            &:hover { color: p.$accent; }
+        }
+
+        button.qs-text-btn {
+            background-color: p.$surface0;
+            color: p.$text;
+            font-size: 12px;
+            border-radius: 6px;
+            padding: 4px 8px;
+            border: none;
+            &:hover { background-color: p.$surface1; color: p.$text; }
+        }
+
+        // Network Row
+        .qs-net-row {
+            margin-top: 4px;
+
+            .qs-net-icon {
+                font-size: 16px;
+                color: p.$green; // Green
+            }
+
+            .qs-net-text {
+                font-size: 13px;
+                font-weight: 600;
+                color: p.$text;
+                
+                &.error { color: p.$red; } // Red
+            }
+        }
+
+        // Sliders (Scoped to Quick Settings)
+        scale {
+            trough {
+                min-height: 4px;
+                background-color: p.$surface1;
+                border-radius: 4px;
+            }
+
+            highlight {
+                background-color: p.$blue; // Blue
+                border-radius: 4px;
+            }
+
+            slider {
+                min-height: 16px;
+                min-width: 16px;
+                margin: -6px;
+                background-color: p.$text;
+                border-radius: 100%;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+        }
+    }
+
+    // --- NOTIFICATIONS LIST ---
+    .notification-list {
+        .notif-placeholder {
+            color: p.$overlay0;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 40px;
+            opacity: 0.7;
+        }
+
+        .notification-row {
+            background-color: p.$surface0;
+            border-radius: 12px;
+            padding: 10px;
+            margin: 2px;
+            border: 1px solid transparent;
+            transition: background-color 0.2s;
+
+            // States
+            &.pinned {
+                background-color: p.$surface1;
+                border: 1px solid p.$accent;
+            }
+
+            &:hover {
+                background-color: p.$surface1;
+            }
+
+            // Children
+            .notif-icon-box {
+                margin-right: 6px;
+                min-width: 48px; 
+                min-height: 48px;
+            }
+
+            .notif-app {
+                font-weight: 800;
+                font-size: 13px;
+                color: p.$accent;
+            }
+
+            .notif-time {
+                font-size: 11px;
+                color: p.$subtext0;
+                margin-top: 2px;
+            }
+
+            .notif-summary {
+                font-weight: 700;
+                font-size: 14px;
+                color: p.$text;
+                margin-top: 2px;
+            }
+
+            .notif-body {
+                font-size: 13px;
+                color: p.$subtext0;
+                margin-top: 4px;
+                padding-bottom: 4px;
+            }
+
+            button.notif-close-btn {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                padding: 4px;
+                border-radius: 50%;
+
+                &:hover {
+                    color: p.$red;
+                }
+            }
+        }
+    }
+}
