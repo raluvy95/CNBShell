@@ -2,7 +2,7 @@ from gi.repository import GLib # type:ignore
 from fabric.widgets.label import Label
 
 class ScrollingLabel(Label):
-    def __init__(self, max_chars=12, scroll_interval=500, **kwargs):
+    def __init__(self, max_chars=16, scroll_interval=500, **kwargs):
         super().__init__(**kwargs)
         self.max_chars = max_chars
         self.scroll_interval = scroll_interval

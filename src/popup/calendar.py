@@ -4,10 +4,8 @@ from fabric.widgets.box import Box
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
-from gi.repository import Gtk, GLib  # <--- Import GLib here
-
-# Assuming this is your custom import
-from src.popup.datetime import ClickableDateTime
+from fabric.widgets.datetime import DateTime
+from gi.repository import Gtk, GLib  # type:ignore
 
 class Time(Box):
     def __init__(self):
@@ -16,8 +14,8 @@ class Time(Box):
             spacing=15,
             h_align="center",
             children=[
-                ClickableDateTime(lambda: None, "%H:%M:%S", style_classes="bigclock"),
-                ClickableDateTime(lambda: None, "%A %d %B %Y")
+                DateTime("%H:%M:%S", style_classes="bigclock"),
+                DateTime("%A %d %B %Y")
             ]
         )
 

@@ -45,11 +45,13 @@ class StatusBar(Window):
         )
 
         self.clockmenu = windows.clockboard
-        
+        self.datetime = ClickableDateTime(self.on_click,
+                                    ("%H:%M", "%A %d %B %Y %T"),
+                                    style_classes="calendar")
         self.box = CenterBox(
             orientation="h",
             start_children=LeftBar(),
-            center_children=ClickableDateTime(lambda: self.toggle_menu(self.clockmenu), "%H:%M", style_classes="calendar"),
+            center_children=self.datetime,
             end_children=RightBar(),
             name="ROOT"
         )
@@ -58,7 +60,13 @@ class StatusBar(Window):
         self.children = self.box
         self.show_all()
         
-    def toggle_menu(self, button):
+    def on_click(self, _, event):
+        if event.button == 1:
+            self.toggle_menu()
+        # elif event.button == 3:
+        #     self.datetime.formatters = ("%T", "%H:%M")
+
+    def toggle_menu(self):
         if self.clockmenu.is_visible():
             self.clockmenu.hide()
         else:

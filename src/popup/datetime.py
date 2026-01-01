@@ -8,11 +8,12 @@ from fabric.core.service import Property
 from fabric.utils.helpers import invoke_repeater
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Gdk # type: ignore
+
 
 class ClickableDateTime(Button):
     @Property(tuple[str, ...], "read-write")
-    def formatters(self):
+    def formatters(self): # type: ignore
         return self._formatters
 
     @formatters.setter
@@ -21,79 +22,123 @@ class ClickableDateTime(Button):
             self._formatters = tuple(value)
         elif isinstance(value, str):
             self._formatters = (value,)
-        
-        # Default safety fallback
-        if not self._formatters:
+        if len(self._formatters) < 1:
+            logger.warning(
+                "[DateTime] passed in invalid list of formatters, using default formatters list"
+            )
             self._formatters = ("%I:%M %p", "%A", "%m-%d-%Y")
-            
-        # Reset index if out of bounds
-        if self._current_index >= len(self._formatters):
-            self._current_index = 0
-            
-        # Update immediately when format changes
-        self.do_update_label()
         return
 
     @Property(int, "read-write")
-    def interval(self):
+    def interval(self): # type: ignore
         return self._interval
 
     @interval.setter
     def interval(self, value: int):
         self._interval = value
-        
-        # Clean up old timer if it exists
         if self._repeater_id:
             GLib.source_remove(self._repeater_id)
-            self._repeater_id = None
-            
-        # Start new timer
-        # invoke_repeater returns the Source ID (int)
         self._repeater_id = invoke_repeater(self._interval, self.do_update_label)
+        self.do_update_label()
         return
 
     def __init__(
         self,
         on_click,
-        formatters: str | Iterable[str],
+        formatters: str | Iterable[str] = ("%I:%M %p", "%A", "%m-%d-%Y"),
         interval: int = 1000,
         name: str | None = None,
+        visible: bool = True,
+        all_visible: bool = False,
+        style: str | None = None,
+        style_classes: Iterable[str] | str | None = None,
+        tooltip_text: str | None = None,
+        tooltip_markup: str | None = None,
+        h_align: Literal["fill", "start", "end", "center", "baseline"]
+        | Gtk.Align
+        | None = None,
+        v_align: Literal["fill", "start", "end", "center", "baseline"]
+        | Gtk.Align
+        | None = None,
+        h_expand: bool = False,
+        v_expand: bool = False,
+        size: Iterable[int] | int | None = None,
         **kwargs,
     ):
-        # Initialize parent first
-        super().__init__(**kwargs) # Simplified for brevity, pass your args properly
-        self._formatters = ("%H:%M",) # safe default before setter runs
-        self._current_index = 0
-        self._interval = interval
-        self._repeater_id = None
+        super().__init__(
+            None,
+            None,
+            None,
+            name,
+            visible,
+            all_visible,
+            style,
+            style_classes,
+            tooltip_text,
+            tooltip_markup,
+            h_align,
+            v_align,
+            h_expand,
+            v_expand,
+            size,
+            **kwargs,
+        )
+        self.add_events(Gdk.EventMask.SCROLL_MASK)
+        self._formatters: tuple[str, ...] = tuple()
+        self._current_index: int = 0
+        self._interval: int = interval
+        self._repeater_id: int | None = None
 
-        # 1. Connect signal safely
-        if on_click:
-            self.connect('clicked', lambda widget: on_click())
-
-        # 2. Set formatters (triggering the setter)
         self.formatters = formatters
-
-        # 3. Start the loop (triggering the setter)
         self.interval = interval
-        
-        # 4. Force one initial update so we don't wait 1000ms for the first text
-        self.do_update_label()
+        self.onclick = on_click
+
+        self.connect(
+            "button-press-event",
+            self.on_button_click,  # to actually allow overriding
+        )
+        self.connect("scroll-event", lambda *args: self.do_handle_scroll(*args))
+
+    def on_button_click(self, *args):
+        self.onclick(*args)
+        self.do_handle_press(*args)
 
     def do_format(self) -> str:
-        if not self._formatters:
-            return "..."
-        safe_index = self._current_index % len(self._formatters)
-        return time.strftime(self._formatters[safe_index])
+        return time.strftime(self._formatters[self._current_index])
 
     def do_update_label(self):
-        # CRITICAL: This must return True for GLib.timeout_add to keep repeating.
-        # If it returns None or False, the loop stops forever.
-        try:
-            new_label = self.do_format()
+        self.set_label(self.do_format())
+        return True
 
-            self.set_label(new_label)
-            return True 
-        except Exception as e:
-            logger.error(f"[DateTime] CRITICAL FAILURE: {e}")
-            return True # Keep trying even if it fails once
+    def do_check_invalid_index(self, index: int) -> bool:
+        return (index < 0) or (index > (len(self.formatters) - 1))
+
+    def do_cycle_next(self):
+        self._current_index = self._current_index + 1
+        if self.do_check_invalid_index(self._current_index):
+            self._current_index = 0  # reset tags
+
+        return self.do_update_label()
+
+    def do_cycle_prev(self):
+        self._current_index = self._current_index - 1
+        if self.do_check_invalid_index(self._current_index):
+            self._current_index = len(self.formatters) - 1
+
+        return self.do_update_label()
+
+    def do_handle_press(self, _, event, *args):
+        match event.button:
+            case 2:  # middle click
+                self.do_cycle_prev()
+            case 3:  # right click
+                self.do_cycle_next()
+        return
+
+    def do_handle_scroll(self, _, event, *args):
+        match event.direction:
+            case Gdk.ScrollDirection.UP:  # scrolling up
+                self.do_cycle_next()
+            case Gdk.ScrollDirection.DOWN:  # scrolling down
+                self.do_cycle_prev()
+        return

@@ -2,6 +2,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import GLib, Gio, Gtk # type:ignore
 from fabric.widgets.box import Box
+from fabric.widgets.label import Label
 # Import the ScrollingLabel we defined above
 
 from src.bar.scrolling import ScrollingLabel
@@ -24,6 +25,10 @@ class MprisPlayerBox(Box):
         self.title_label = ScrollingLabel()
 
         self.add(self.cava_widget)
+        self.add(Label(
+            label="󰎇",
+            style_classes="icon-label"
+        ))
         self.add(self.title_label)
 
         self.player_proxy = None
