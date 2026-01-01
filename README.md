@@ -12,9 +12,9 @@ A ready to use bar/shell for Hyprland based on [Fabric](https://wiki.ffpy.org/) 
 - Notification viewer, independent from any notification daemon and doesn't replace it.
 - Cava integration
 
-  > [!IMPORTANT]
-  > Some features are AI generated. They are tested, modified by me and work on my machine<br>
-  > If you do not like my project because I used AI, don't complain and don't use my project
+
+>[!IMPORTANT]
+>Some features are AI generated. They are tested, modified by me and work on my machine. If you do not like my project because I used AI, don't complain and don't use my project
 
 # Installing
 
