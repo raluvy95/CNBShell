@@ -77,8 +77,7 @@ class HyprlandActiveWindowWithIcon(Box):
             "discord": "discord",
             "thunar": "system-file-manager",
             "nautilus": "org.gnome.Nautilus",
-            "org.gnome.nautilus": "org.gnome.Nautilus",
-            "firefox": "firefox",
+            "org.gnome.nautilus": "org.gnome.Nautilus"
         }
         
         return mapping.get(cls, win_class)
@@ -90,7 +89,7 @@ class HyprlandActiveWindowWithIcon(Box):
             self.icon.set_from_icon_name("desktop", self.icon_size)
             return
         
-        self.label.set_label(truncate(win_class, 40))
+        self.label.set_label(truncate(str(win_class).capitalize(), 40))
         self.icon.set_visible(True)
 
         # 2. Icon Lookup
