@@ -1,6 +1,6 @@
 # CNBShell
 
-A ready to use bar/shell for Hyprland based on [Fabric](https://wiki.ffpy.org/) and GTK3 written in Python. It is only intended to work on my laptop (Asus TUF Gaming F15).
+A ready to use bar/shell for Hyprland based on [Fabric](https://github.com/Fabric-Development/fabric) and GTK3 written in Python. It is only intended to work on my laptop (Asus TUF Gaming F15).
 
 # Features
 

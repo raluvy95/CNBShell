@@ -4,7 +4,6 @@ from loguru import logger
 logger.remove()
 logger.add(sys.stderr, level="WARNING")
 
-import fabric
 from fabric import Application
 from fabric.utils import monitor_file, get_relative_path, exec_shell_command, logger
 from src.statusbar import StatusBar, ClockPopup
@@ -19,7 +18,7 @@ DIST_STYLE_DIR = BASE_DIR / "dist/main.css"
 
 def process_and_apply_css(app: Application):
     """Compile and apply CSS in background thread."""
-    from gi.repository import GLib
+    from gi.repository import GLib # type: ignore
 
     @run_in_thread
     def _compile():
@@ -31,7 +30,7 @@ def process_and_apply_css(app: Application):
         if output == "":
             logger.info(f"{Colors.INFO}[Main] CSS applied")
             GLib.idle_add(
-                lambda: app.set_stylesheet_from_file(DIST_STYLE_DIR)
+                lambda: app.set_stylesheet_from_file(str(DIST_STYLE_DIR))
             )
         else:
             logger.exception(f"{Colors.ERROR}[Main]Failed to compile sass!")

@@ -1,7 +1,7 @@
 import os
 import psutil
 import socket
-import time
+
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
@@ -11,7 +11,7 @@ from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.scale import Scale
 from fabric.utils import exec_shell_command
-from gi.repository import GLib, Gtk, Gdk, Pango, GdkPixbuf
+from gi.repository import GLib, Gtk, Gdk, Pango, GdkPixbuf # type: ignore
 
 
 try:
@@ -93,7 +93,7 @@ class QuickSettings(Box):
 
     def _init_pulse(self):
         if HAS_PULSE and not self.pulse:
-            try: self.pulse = pulsectl.Pulse('cnb-shell')
+            try: self.pulse = pulsectl.Pulse('cnb-shell') # type: ignore
             except: self.pulse = None
 
     def refresh(self):
@@ -107,13 +107,37 @@ class QuickSettings(Box):
             try:
                 if not self.pulse.connected: self._init_pulse()
                 server_info = self.pulse.server_info()
-                sink = self.pulse.get_sink_by_name(server_info.default_sink_name)
-                return (round(sink.volume.value_flat * 100), sink.mute)
+                default_sink = None
+                # Try multiple ways to obtain default_sink_name (attribute, dict key, or list/tuple element)
+                if isinstance(server_info, dict):
+                    default_sink = server_info.get('default_sink_name')
+                elif isinstance(server_info, (list, tuple)):
+                    if server_info:
+                        first = server_info[0]
+                        if isinstance(first, dict):
+                            default_sink = first.get('default_sink_name')
+                        else:
+                            default_sink = getattr(first, 'default_sink_name', None)
+                else:
+                    default_sink = getattr(server_info, 'default_sink_name', None)
+
+                if default_sink:
+                    sink = self.pulse.get_sink_by_name(default_sink)
+                    return (round(sink.volume.value_flat * 100), sink.mute) # type: ignore
             except: self.pulse = None
         
         try:
-            vol = int(exec_shell_command("pamixer --get-volume").strip())
-            mute = exec_shell_command("pamixer --get-mute").strip() == "true"
+            out = exec_shell_command("pamixer --get-volume")
+            if out is False or out is None:
+                vol = 0
+            else:
+                vol = int(str(out).strip())
+
+            mute_out = exec_shell_command("pamixer --get-mute")
+            mute = False
+            if mute_out is not False and mute_out is not None:
+                mute = str(mute_out).strip().lower() == "true"
+
             return (vol, mute)
         except: return (0, False)
 
@@ -134,9 +158,9 @@ class QuickSettings(Box):
         val = int(scale.get_value())
         if self.pulse:
             try:
-                sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name)
+                sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name) # type: ignore
                 self.pulse.volume_set_all_chans(sink, val / 100.0)
-                if sink.mute and val > 0: self.pulse.mute(sink, False)
+                if sink.mute and val > 0: self.pulse.mute(sink, False) # type: ignore
                 self._update_volume_ui(); return
             except: pass
         exec_shell_command(f"pamixer --set-volume {val}")
@@ -146,8 +170,8 @@ class QuickSettings(Box):
     def toggle_mute(self, btn):
         if self.pulse:
             try:
-                sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name)
-                self.pulse.mute(sink, not sink.mute)
+                sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name) # type: ignore
+                self.pulse.mute(sink, not sink.mute) # type: ignore
                 self._update_volume_ui(); return
             except: pass
         exec_shell_command("pamixer -t")
@@ -156,7 +180,7 @@ class QuickSettings(Box):
     # --- BRIGHTNESS LOGIC ---
     def _update_brightness_ui(self):
         try:
-            out = exec_shell_command("brightnessctl -m").strip().split(',')
+            out = exec_shell_command("brightnessctl -m").strip().split(',') # type: ignore
             if len(out) >= 4:
                 percent = int(out[3].replace('%', ''))
                 if abs(self.bri_scale.get_value() - percent) > 1: self.bri_scale.set_value(percent)

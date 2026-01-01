@@ -2,7 +2,7 @@ import json
 import subprocess
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
-from gi.repository import GLib
+from gi.repository import GLib # type: ignore
 from src.utils.threads import run_in_thread
 
 class PrivacyIndicator(Box):

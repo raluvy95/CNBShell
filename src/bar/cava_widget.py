@@ -1,21 +1,19 @@
 import os
-import tempfile
 import subprocess
 import threading
-import textwrap
 import math
 import gi
 import cairo
-import atexit
+from pathlib import Path
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib # type: ignore
 
 class CavaWidget(Gtk.DrawingArea):
-    def __init__(self, bars=25, height=20, spacing=4, framerate=60):
+    def __init__(self, bars=4, height=20, spacing=4, framerate=60):
         super().__init__()
         # Ensure we request enough space
-        self.set_size_request(bars * (10 + spacing), height)
+        self.set_size_request(bars * (3 + spacing), height)
         
         # Configuration
         self.bars = bars
@@ -41,30 +39,8 @@ class CavaWidget(Gtk.DrawingArea):
 
     def start_cava(self):
         # 1. Config text setup
-        config_text = textwrap.dedent(f"""
-            [general]
-            bars = {self.bars}
-            framerate = {self.framerate}
-            mode = normal
-            channels = mono
-            [output]
-            method = raw
-            raw_target = /dev/stdout
-            data_format = ascii
-            ascii_max_range = 100
-            bar_delimiter = 59
-            frame_delimiter = 10
-        """).strip()
-        
-        # 2. Create the file (using delete=False so we can inspect it if needed)
-        self.config_file = tempfile.NamedTemporaryFile(mode='w+', delete=False)
-        self.config_file.write(config_text)
-        self.config_file.close()
-
-        print(f"DEBUG: Config file created at: {self.config_file.name}")
-        print(f"DEBUG: Checking if file exists: {os.path.exists(self.config_file.name)}")
-
-        cmd = ["cava", "-p", self.config_file.name]
+        parent = Path(__file__).resolve().parent
+        cmd = ["cava", "-p", f"{parent}/../../cava.conf"]
         
         try:
             # 3. CHANGED: Capture stderr to see errors
@@ -93,30 +69,15 @@ class CavaWidget(Gtk.DrawingArea):
             threading.Thread(target=self._read_cava_output, daemon=True).start()
 
         except FileNotFoundError:
-            print("Error: 'cava' command not found in PATH.")
+            print("Error: 'cava' command not found in PATH.\nDid you install 'cava'?")
         except Exception as e:
             print(f"Error starting cava: {e}")
-
-    def _cleanup_config_file(self):
-        """Safely remove the file if it exists"""
-        if hasattr(self, 'config_file') and os.path.exists(self.config_file.name):
-            try:
-                os.remove(self.config_file.name)
-            except OSError:
-                pass
-
-    def cleanup(self, *args):
-        # Your normal widget cleanup
-        self.stop_event.set()
-        if self.cava_process: 
-            self.cava_process.terminate()
-        
-        # Call our file cleanup helper
-        self._cleanup_config_file()
 
     def _read_cava_output(self):
         while not self.stop_event.is_set() and self.cava_process:
             try:
+                if self.cava_process.stdout is None:
+                    break
                 line = self.cava_process.stdout.readline()
                 if not line: break
                 values = line.strip().split(';')

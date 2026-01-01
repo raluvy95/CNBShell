@@ -1,9 +1,7 @@
 from fabric.widgets.box import Box
-from fabric.hyprland.widgets import HyprlandActiveWindow
-from fabric.utils import FormattedString, truncate
 
 from src.bar.workspace import Workspace
-from src.bar.hyprlang import Hyprlang
+from src.bar.activewindow import HyprlandActiveWindowWithIcon
 from src.bar.cava_widget import CavaWidget
 
 class LeftBar(Box):
@@ -13,15 +11,8 @@ class LeftBar(Box):
         h_align="start",
         children=[
             Workspace(),
-            Hyprlang(),
-            CavaWidget(),
-            HyprlandActiveWindow(
-                formatter=FormattedString(
-                    "{'Desktop' if not win_title else truncate(win_class, 20)}",
-                    truncate=truncate,
-                ),
-                style_classes="wintitle"
-            )
+            HyprlandActiveWindowWithIcon(),
+            CavaWidget()
         ],
         spacing=10,
         name="LEFT")

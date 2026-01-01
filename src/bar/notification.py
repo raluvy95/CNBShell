@@ -1,8 +1,6 @@
 import datetime
-import os
 import threading 
 import subprocess
-import re
 import atexit
 import psutil
 import socket
@@ -12,7 +10,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 from fabric.utils import exec_shell_command
-from gi.repository import GLib, GdkPixbuf
+from gi.repository import GLib, GdkPixbuf # type: ignore
 
 from src.bar.dashboard import SystemDashboard
 
@@ -34,7 +32,7 @@ def safe_extract_string(line):
 def get_dnd_status():
     try:
         result = exec_shell_command("makoctl mode")
-        return "do-not-disturb" in result
+        return "do-not-disturb" in result # type: ignore
     except: return False
 
 def toggle_dnd_mode():
@@ -131,8 +129,8 @@ class NotificationIndicator(Button):
         """Updates Volume and Network icons in the bar."""
         # --- VOLUME ---
         try:
-            vol = int(exec_shell_command("pamixer --get-volume").strip())
-            is_muted = exec_shell_command("pamixer --get-mute").strip() == "true"
+            vol = int(exec_shell_command("pamixer --get-volume").strip()) # type: ignore
+            is_muted = exec_shell_command("pamixer --get-mute").strip() == "true" # type: ignore
             
             icons = ["󰝟", "󰖁", "󰕿", "󰖀", "󰕾"]
             if is_muted:
@@ -186,7 +184,7 @@ class NotificationIndicator(Button):
         hex_buffer = []
         total_image_bytes = 0
 
-        for line in process.stdout:
+        for line in process.stdout: # type: ignore
             line = line.strip()
             
             if "member=Notify" in line or "member='Notify'" in line:
