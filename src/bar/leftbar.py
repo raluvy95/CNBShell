@@ -2,7 +2,7 @@ from fabric.widgets.box import Box
 
 from src.bar.workspace import Workspace
 from src.bar.activewindow import HyprlandActiveWindowWithIcon
-from src.bar.cava_widget import CavaWidget
+from src.bar.mpris import MprisPlayerBox
 
 class LeftBar(Box):
     def __init__(self):
@@ -12,7 +12,7 @@ class LeftBar(Box):
         children=[
             Workspace(),
             HyprlandActiveWindowWithIcon(),
-            CavaWidget()
+            MprisPlayerBox()
         ],
         spacing=10,
         name="LEFT")

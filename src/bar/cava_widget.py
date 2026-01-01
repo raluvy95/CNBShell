@@ -1,4 +1,3 @@
-import os
 import subprocess
 import threading
 import math
@@ -10,7 +9,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib # type: ignore
 
 class CavaWidget(Gtk.DrawingArea):
-    def __init__(self, bars=4, height=20, spacing=4, framerate=60):
+    def __init__(self, bars=4, height=20, spacing=2, framerate=60):
         super().__init__()
         # Ensure we request enough space
         self.set_size_request(bars * (3 + spacing), height)
@@ -21,11 +20,10 @@ class CavaWidget(Gtk.DrawingArea):
         self.spacing = spacing
         self.framerate = framerate
         self.radius = 4  # Corner radius
-        
         # Visual Settings
         self.use_gradient = True
         self.gradient_colors = ["#89b4fa", "#eba0ac"] # Start, End
-        self.solid_color = "#cba6f7"
+        self.solid_color = "#11111b"
         
         # Process State
         self.cava_process = None
@@ -109,26 +107,18 @@ class CavaWidget(Gtk.DrawingArea):
         cr.arc(x + r, y + r, r, math.pi, 3 * math.pi / 2)
         cr.close_path()
 
-    def on_draw(self, widget, cr):
+    def on_draw(self, widget, cr):  
         w = self.get_allocated_width()
         h = self.get_allocated_height()
         
-        # Calculate bar width based on available space and requested count
-        # (This keeps them responsive, or you can fix the width)
+        # Calculate bar width
         total_spacing = (self.bars - 1) * self.spacing
         bar_w = (w - total_spacing) / self.bars
-        
-        # CENTERING LOGIC
-        # If the bars become very thin, you might want to cap the width and center the block
-        # For now, we assume they fill the width. If you want a fixed bar width centered:
-        # bar_w = 10 # fixed px
-        # total_content_width = (bar_w * self.bars) + total_spacing
-        # start_x = (w - total_content_width) / 2
-        start_x = 0 # Currently filling full width
+        start_x = 0 
 
-        # PREPARE SOURCE (Gradient or Solid)
+        # PREPARE SOURCE
         if self.use_gradient:
-            gradient = cairo.LinearGradient(0, 0, w, 0) # Left to right
+            gradient = cairo.LinearGradient(0, 0, w, 0)
             gradient.add_color_stop_rgb(0, *self.hex_to_rgb(self.gradient_colors[0]))
             gradient.add_color_stop_rgb(1, *self.hex_to_rgb(self.gradient_colors[1]))
             cr.set_source(gradient)
@@ -138,12 +128,14 @@ class CavaWidget(Gtk.DrawingArea):
         # DRAW BARS
         for i, height_factor in enumerate(self.bar_heights):
             bar_h = h * height_factor
-            if bar_h < 1: bar_h = 1 # Minimum visibility
+            if bar_h < 2: bar_h = 2
             
             x = start_x + i * (bar_w + self.spacing)
-            y = h - bar_h
             
-            # Use custom rounded rect helper
+            # --- CHANGED: CENTERED Y CALCULATION ---
+            # To center vertically: (Container Height - Bar Height) / 2
+            y = (h - bar_h) / 2
+            
             self.draw_rounded_rect(cr, x, y, bar_w, bar_h, self.radius)
             cr.fill()
 

@@ -19,7 +19,7 @@ class Hyprlang(HyprlandLanguage):
     def get_emoji_and_update_tooltip(self, lang):   
 
         try:
-            code = lang[:2].upper()
+            code = lang[:3].upper()
             emoji = EMOJI_LANGUAGES[code].value
         except (KeyError, AttributeError, IndexError):
             emoji = lang

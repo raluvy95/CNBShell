@@ -1,0 +1,13 @@
+@use "pattern.scss" as p;
+
+#MPRIS {
+    background-color: p.$green;
+    color: black;
+    font-size: 16px;
+    padding: 0 10px;
+    border-radius: 16px;
+
+    &:hover {
+        background-color: p.$surface1;
+    }
+}

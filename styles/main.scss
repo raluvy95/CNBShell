@@ -6,13 +6,14 @@
 @use "popup.scss";
 @use "notification.scss";
 @use "hyprlang.scss";
+@use "mpris.scss";
 
 * {
     all: unset;
-    
+
     selection {
         background-color: p.$accent; // High contrast background
-        color: p.$base;           // Dark text
+        color: p.$base; // Dark text
         font-weight: bold;
     }
 }
