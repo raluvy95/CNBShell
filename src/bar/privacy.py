@@ -75,8 +75,8 @@ class PrivacyIndicator(Box):
 
                 # Check Microphone
                 if media_class == "Stream/Input/Audio":
-                    # Ignore the volume mixer itself
-                    if app_name not in ["pavucontrol", "WirePlumber", "PipeWire"]:
+                    # Ignore the volume mixer itself and cava
+                    if app_name not in ["pavucontrol", "WirePlumber", "PipeWire", "cava"]:
                          mic_apps.add(app_name)
 
                 # Check Screenshare

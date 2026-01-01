@@ -14,12 +14,7 @@ class LeftBar(Box):
         children=[
             Workspace(),
             Hyprlang(),
-            CavaWidget(
-                    bars=10,               # Number of bars
-                    height=20,             # Height in pixels
-                    spacing=3,             # Space between bars
-                    color=(0.8, 0.8, 0.8, 1) # RGBA: Light Grey
-            ),
+            CavaWidget(),
             HyprlandActiveWindow(
                 formatter=FormattedString(
                     "{'Desktop' if not win_title else truncate(win_class, 20)}",

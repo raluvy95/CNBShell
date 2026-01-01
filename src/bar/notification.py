@@ -254,7 +254,7 @@ class NotificationIndicator(Button):
                             mode = 'RGBA' if has_alpha else 'RGB'
                             img = Image.frombytes(mode, (width, height), raw_data, 'raw', mode, rowstride, 1)
 
-                            img.thumbnail((32, 32), Image.Resampling.LANCZOS)
+                            img.thumbnail((42, 42), Image.Resampling.LANCZOS)
                             
                             # 4. Save back to the message structure
                             new_width, new_height = img.size
