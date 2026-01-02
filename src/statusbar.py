@@ -1,13 +1,9 @@
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.wayland import WaylandWindow as Window
-from fabric.widgets.label import Label   
 from fabric.widgets.box import Box
-from fabric.widgets.button import Button
-from fabric.widgets.eventbox import EventBox
 
 from src.bar.leftbar import LeftBar
 from src.bar.rightbar import RightBar
-from src.bar.workspace import Workspace
 from src.popup.datetime import ClickableDateTime
 from src.popup.calendar import Calendar
 

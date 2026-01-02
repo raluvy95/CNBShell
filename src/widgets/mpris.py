@@ -5,8 +5,8 @@ from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 # Import the ScrollingLabel we defined above
 
-from src.bar.scrolling import ScrollingLabel
-from src.bar.cava_widget import CavaWidget
+from src.widgets.scrolling import ScrollingLabel
+from src.widgets.cava_widget import CavaWidget
 
 class MprisPlayerBox(Box):
     def __init__(self, **kwargs):

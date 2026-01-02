@@ -12,7 +12,7 @@ from fabric.widgets.label import Label
 from fabric.utils import exec_shell_command
 from gi.repository import GLib, GdkPixbuf # type: ignore
 
-from src.bar.dashboard import SystemDashboard
+from src.widgets.dashboard import SystemDashboard
 
 # --- CONFIG ---
 MAX_IMAGE_BYTES = 5 * 1024 * 1024  

@@ -1,10 +1,10 @@
 from fabric.widgets.box import Box
 
-from src.bar.systemtray import SystemTray
-from src.bar.privacy import PrivacyIndicator
-from src.bar.hyprlang import Hyprlang
-from src.bar.systemmonitor import SystemMonitor
-from src.bar.notification import NotificationIndicator
+from src.widgets.systemtray import SystemTray
+from src.widgets.privacy import PrivacyIndicator
+from src.widgets.hyprlang import Hyprlang
+from src.widgets.systemmonitor import SystemMonitor
+from src.widgets.notification import NotificationIndicator
 
 class RightBar(Box):
     def __init__(self):

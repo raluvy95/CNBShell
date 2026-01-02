@@ -1,8 +1,8 @@
 from fabric.widgets.box import Box
 
-from src.bar.workspace import Workspace
-from src.bar.activewindow import HyprlandActiveWindowWithIcon
-from src.bar.mpris import MprisPlayerBox
+from src.widgets.workspace import Workspace
+from src.widgets.activewindow import HyprlandActiveWindowWithIcon
+from src.widgets.mpris import MprisPlayerBox
 
 class LeftBar(Box):
     def __init__(self):
