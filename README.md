@@ -29,3 +29,9 @@ You must initialize Python virtual environment to use my project
 ```sh
 python -m venv .venv
 ```
+
+
+# Developement
+Enforce a basic [Semantic Commit Messages](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716)
+
+Since this project is heavly developed and I am currently using it. Some features and fixes are AI generated because... why not
