@@ -1,0 +1,8 @@
+@use "pattern.scss" as p;
+
+.kbstatus {
+    background-color: p.$mauve;
+    color: p.$crust;
+    padding: 0 10px;
+    border-radius: 16px;
+}
