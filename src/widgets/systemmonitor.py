@@ -4,7 +4,7 @@ import psutil
 import threading
 import time
 
-from gi.repository import GLib
+from gi.repository import GLib # type: ignore
 
 class SystemMonitor(Box):
     def __init__(self):
