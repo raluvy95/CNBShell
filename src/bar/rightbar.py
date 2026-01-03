@@ -4,7 +4,6 @@ from src.widgets.systemtray import SystemTray
 from src.widgets.privacy import PrivacyIndicator
 from src.widgets.hyprlang import Hyprlang
 from src.widgets.systemmonitor import SystemMonitor
-from src.widgets.notification import NotificationIndicator
 from src.widgets.keyboardstatus import KeyboardStatus
 
 class RightBar(Box):
@@ -17,9 +16,8 @@ class RightBar(Box):
             SystemMonitor(),
             PrivacyIndicator(),
             Hyprlang(),
-            SystemTray(icon_size=16, style_classes="systray", spacing=5),
-            KeyboardStatus(),
-            NotificationIndicator()
+            SystemTray(icon_size=16, spacing=5),
+            KeyboardStatus()
         ],
         name="RIGHT")
         
