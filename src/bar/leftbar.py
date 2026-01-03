@@ -11,8 +11,8 @@ class LeftBar(Box):
         h_align="start",
         children=[
             Workspace(),
-            HyprlandActiveWindowWithIcon(),
-            MprisPlayerBox()
+            MprisPlayerBox(),
+            HyprlandActiveWindowWithIcon()
         ],
         spacing=10,
         name="LEFT")

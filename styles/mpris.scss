@@ -1,17 +1,100 @@
 @use "pattern.scss" as p;
 
 #MPRIS {
-    background-color: p.$green;
-    color: p.$crust;
-    font-size: 16px;
-    padding: 0 10px;
-    border-radius: 16px;
+    // The EventBox itself is transparent and just catches events.
+    // We style the inner box (.mpris-inner) for the visual look.
 
-    &:hover {
-        background-color: p.$surface1;
+    .mpris-inner {
+        background-color: p.$green;
+        color: p.$crust;
+        font-size: 16px;
+        padding: 0 10px;
+        border-radius: 16px;
+        transition: background-color 0.2s; // Optional: Smooth hover
+
+        // Nesting the icon-label inside the inner box context
+        .icon-label {
+            color: p.$crust;
+        }
     }
 
-    .icon-label {
-        color: p.$crust;
+    &:hover {
+        .mpris-inner {
+            background-color: p.$surface1;
+        }
+    }
+}
+
+#MPRIS_VIEWER {
+    background-color: transparent;
+
+    .popup-frame {
+        background-color: p.$base;
+        border: 2px solid p.$surface1;
+        border-radius: 12px; // Slightly tighter radius
+        padding: 12px; // Reduced from 20px
+        min-width: 300px; // Reduced width
+    }
+
+    #cover-art {
+        border-radius: 8px;
+        background-color: p.$surface0;
+        // Image size is controlled by Python (80px), this handles the container style
+    }
+
+    // Styling for the ScrollingLabel inside the popup
+    // (Assuming ScrollingLabel uses a Label internally)
+    label {
+        font-weight: bold;
+        color: p.$text;
+        font-size: 15px; // Reduced from 18px
+    }
+
+    .artist {
+        font-size: 13px; // Reduced from 14px
+        color: p.$subtext1;
+        font-weight: normal;
+    }
+
+    .album {
+        font-size: 11px;
+        color: p.$subtext0;
+        font-style: italic;
+        font-weight: normal;
+    }
+
+    .time-label {
+        font-size: 10px;
+        color: p.$overlay2;
+        font-weight: normal;
+    }
+
+    scale {
+        margin: 2px 0;
+
+        trough {
+            min-height: 4px;
+            border-radius: 4px;
+            background-color: p.$surface1;
+        }
+
+        highlight {
+            background-color: p.$blue;
+            border-radius: 4px;
+        }
+    }
+
+    button {
+        background: transparent;
+        box-shadow: none;
+        color: p.$text;
+        font-size: 20px; // Smaller icons
+        padding: 4px 10px;
+
+        &:hover {
+            color: p.$blue;
+            background-color: p.$surface1;
+            border-radius: 6px;
+        }
     }
 }
