@@ -155,12 +155,12 @@ class NotificationIndicator(Button):
             
             if active_iface:
                 # Only check internet if link is up (saves resources)
-                if check_internet(): self.net_label.set_label("󰤨") # Connected
-                else: self.net_label.set_label("󰤢") # No Internet
+                if check_internet(): self.net_label.set_label("󰣺") # Connected
+                else: self.net_label.set_label("󰣽") # No Internet
             else:
-                self.net_label.set_label("󰤯") # Disconnected
+                self.net_label.set_label("󰣾") # Disconnected
         except:
-            self.net_label.set_label("󰤯")
+            self.net_label.set_label("󰣾")
 
         return True # Keep GLib timer running
 
