@@ -130,19 +130,26 @@ class QuickSettings(Box):
         
         # Default return if Pulse is unreachable (no CLI fallback)
         return (0, False)
-
-    def _update_volume_ui(self):
-        vol, is_muted = self._get_vol_data()
-        if abs(self.vol_scale.get_value() - vol) > 1: self.vol_scale.set_value(vol)
+    
+    
+    def get_vol(self):
         icons = ["󰝟", "󰖁", "󰕿", "󰖀", "󰕾"]
-        if is_muted: self.vol_icon.set_label(icons[0])
+        vol, is_muted = self._get_vol_data()
+        if is_muted:
+            return icons[0], vol
         else:
             idx = 1
             if vol > 0: idx = 2
             if vol > 33: idx = 3
             if vol > 66: idx = 4
-            self.vol_icon.set_label(icons[idx])
-            self.vol_scale.set_tooltip_text(f"{vol}%")
+            return icons[idx], vol
+
+
+    def _update_volume_ui(self):
+        icon, vol = self.get_vol()
+        if abs(self.vol_scale.get_value() - vol) > 1: self.vol_scale.set_value(vol)
+        self.vol_icon.set_label(icon)
+        self.vol_scale.set_tooltip_text(f"{vol}%")
 
     def on_vol_change(self, scale):
         val = int(scale.get_value())
@@ -450,6 +457,9 @@ class SystemDashboard(Window):
         self.connect("map", lambda *_: self.quick_settings.refresh())
 
     # --- API ---
+    def get_vol(self):
+        return self.quick_settings.get_vol()
+
     def update_dnd_icon(self, is_dnd):
         if is_dnd: self.dnd_label.set_label("󰂛"); self.dnd_label.get_style_context().add_class("dnd-active")
         else: self.dnd_label.set_label("󰂚"); self.dnd_label.get_style_context().remove_class("dnd-active")

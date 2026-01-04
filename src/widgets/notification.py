@@ -128,21 +128,10 @@ class NotificationIndicator(Button):
     def update_status_indicators(self):
         """Updates Volume and Network icons in the bar."""
         # --- VOLUME ---
-        try:
-            vol = int(exec_shell_command("pamixer --get-volume").strip()) # type: ignore
-            is_muted = exec_shell_command("pamixer --get-mute").strip() == "true" # type: ignore
-            
-            icons = ["󰝟", "󰖁", "󰕿", "󰖀", "󰕾"]
-            if is_muted:
-                self.vol_label.set_label(icons[0])
-            else:
-                idx = 1
-                if vol > 0: idx = 2
-                if vol > 33: idx = 3
-                if vol > 66: idx = 4
-                self.vol_label.set_label(icons[idx])
-        except: 
-            self.vol_label.set_label("󰕾") # Fallback
+        
+        icon, vol = self.dashboard.get_vol()
+        self.vol_label.set_label(icon)
+        self.vol_label.set_tooltip_text(f"{vol}%")
 
         # --- NETWORK ---
         try:
