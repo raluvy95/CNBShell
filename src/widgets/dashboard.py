@@ -1,6 +1,7 @@
 import os
 import psutil
 import socket
+import pulsectl # Mandatory import now
 
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
@@ -12,14 +13,6 @@ from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.scale import Scale
 from fabric.utils import exec_shell_command
 from gi.repository import GLib, Gtk, Gdk, Pango, GdkPixbuf # type: ignore
-
-
-try:
-    import pulsectl
-    HAS_PULSE = True
-except ImportError:
-    HAS_PULSE = False
-    print("[Warning] 'pulsectl' not found. Falling back to CLI tools.")
 
 # --- HELPERS ---
 def get_kbd_backlight_device():
@@ -92,9 +85,12 @@ class QuickSettings(Box):
         self.add(self.net_box)
 
     def _init_pulse(self):
-        if HAS_PULSE and not self.pulse:
-            try: self.pulse = pulsectl.Pulse('cnb-shell') # type: ignore
-            except: self.pulse = None
+        if not self.pulse:
+            try: 
+                self.pulse = pulsectl.Pulse('cnb-shell') # type: ignore
+            except Exception as e: 
+                print(f"[Error] Could not connect to PulseAudio: {e}")
+                self.pulse = None
 
     def refresh(self):
         GLib.idle_add(self._update_volume_ui)
@@ -103,12 +99,16 @@ class QuickSettings(Box):
         if self.kbd_device: GLib.idle_add(self._update_kbd_ui)
 
     def _get_vol_data(self):
+        # Retry connection if lost
+        if self.pulse is None or not self.pulse.connected:
+            self._init_pulse()
+
         if self.pulse:
             try:
-                if not self.pulse.connected: self._init_pulse()
                 server_info = self.pulse.server_info()
                 default_sink = None
-                # Try multiple ways to obtain default_sink_name (attribute, dict key, or list/tuple element)
+                
+                # Robust extraction of default sink name
                 if isinstance(server_info, dict):
                     default_sink = server_info.get('default_sink_name')
                 elif isinstance(server_info, (list, tuple)):
@@ -124,22 +124,12 @@ class QuickSettings(Box):
                 if default_sink:
                     sink = self.pulse.get_sink_by_name(default_sink)
                     return (round(sink.volume.value_flat * 100), sink.mute) # type: ignore
-            except: self.pulse = None
+            except Exception as e:
+                print(f"[Error] PulseAudio data retrieval failed: {e}")
+                self.pulse = None # Force re-init next time
         
-        try:
-            out = exec_shell_command("pamixer --get-volume")
-            if out is False or out is None:
-                vol = 0
-            else:
-                vol = int(str(out).strip())
-
-            mute_out = exec_shell_command("pamixer --get-mute")
-            mute = False
-            if mute_out is not False and mute_out is not None:
-                mute = str(mute_out).strip().lower() == "true"
-
-            return (vol, mute)
-        except: return (0, False)
+        # Default return if Pulse is unreachable (no CLI fallback)
+        return (0, False)
 
     def _update_volume_ui(self):
         vol, is_muted = self._get_vol_data()
@@ -158,24 +148,34 @@ class QuickSettings(Box):
         val = int(scale.get_value())
         if self.pulse:
             try:
-                sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name) # type: ignore
-                self.pulse.volume_set_all_chans(sink, val / 100.0)
-                if sink.mute and val > 0: self.pulse.mute(sink, False) # type: ignore
-                self._update_volume_ui(); return
-            except: pass
-        exec_shell_command(f"pamixer --set-volume {val}")
-        exec_shell_command(f"pamixer -u")
-        self._update_volume_ui()
+                server_info = self.pulse.server_info()
+                # Simplified attribute access assuming standard library behavior now
+                sink_name = getattr(server_info, 'default_sink_name', None)
+                if not sink_name and isinstance(server_info, dict): 
+                     sink_name = server_info.get('default_sink_name')
+                
+                if sink_name:
+                    sink = self.pulse.get_sink_by_name(sink_name) # type: ignore
+                    self.pulse.volume_set_all_chans(sink, val / 100.0)
+                    if sink.mute and val > 0: self.pulse.mute(sink, False) # type: ignore
+                    self._update_volume_ui()
+            except Exception as e: 
+                print(f"[Error] PulseAudio set volume failed: {e}")
 
     def toggle_mute(self, btn):
         if self.pulse:
             try:
-                sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name) # type: ignore
-                self.pulse.mute(sink, not sink.mute) # type: ignore
-                self._update_volume_ui(); return
-            except: pass
-        exec_shell_command("pamixer -t")
-        self._update_volume_ui()
+                server_info = self.pulse.server_info()
+                sink_name = getattr(server_info, 'default_sink_name', None)
+                if not sink_name and isinstance(server_info, dict): 
+                     sink_name = server_info.get('default_sink_name')
+
+                if sink_name:
+                    sink = self.pulse.get_sink_by_name(sink_name) # type: ignore
+                    self.pulse.mute(sink, not sink.mute) # type: ignore
+                    self._update_volume_ui()
+            except Exception as e:
+                print(f"[Error] PulseAudio toggle mute failed: {e}")
 
     # --- BRIGHTNESS LOGIC ---
     def _update_brightness_ui(self):
