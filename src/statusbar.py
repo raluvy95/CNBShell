@@ -42,7 +42,7 @@ class StatusBar(Window):
 
         self.clockmenu = ClockPopup()
         self.datetime = ClickableDateTime(self.on_click,
-                                    ("%H:%M", "%A %d %B %Y %T"),
+                                    ("%x %H:%M", "%A %d %B %Y %T"),
                                     style_classes="calendar")
         self.box = CenterBox(
             orientation="h",
