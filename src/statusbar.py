@@ -31,7 +31,7 @@ class ClockPopup(Window):
         self.children = self.content_box
 
 class StatusBar(Window):
-    def __init__(self, windows, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(
             layer="top",
             anchor="left top right",
@@ -40,7 +40,7 @@ class StatusBar(Window):
             **kwargs
         )
 
-        self.clockmenu = windows.clockboard
+        self.clockmenu = ClockPopup()
         self.datetime = ClickableDateTime(self.on_click,
                                     ("%H:%M", "%A %d %B %Y %T"),
                                     style_classes="calendar")
@@ -59,8 +59,6 @@ class StatusBar(Window):
     def on_click(self, _, event):
         if event.button == 1:
             self.toggle_menu()
-        # elif event.button == 3:
-        #     self.datetime.formatters = ("%T", "%H:%M")
 
     def toggle_menu(self):
         if self.clockmenu.is_visible():

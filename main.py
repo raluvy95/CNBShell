@@ -40,14 +40,10 @@ def process_and_apply_css(app: Application):
 
     _compile()
 
-class IndWindows():
-    def __init__(self):
-        self.clockboard = ClockPopup()
-
 
 class CNBShell(Application):
-    def __init__(self, windows: IndWindows):
-        super().__init__("CNBShell", StatusBar(windows))
+    def __init__(self):
+        super().__init__("CNBShell", StatusBar())
 
         style_monitor = monitor_file(get_relative_path("styles"))
         style_monitor.connect("changed", lambda *_: process_and_apply_css(self))
@@ -56,6 +52,5 @@ class CNBShell(Application):
         self.run()
 
 if __name__ == "__main__":
-    windows = IndWindows()
-    CNBShell(windows)
+    CNBShell()
 
