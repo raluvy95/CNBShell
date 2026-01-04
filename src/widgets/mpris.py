@@ -12,6 +12,8 @@ from fabric.widgets.wayland import WaylandWindow as Window
 from src.widgets.scrolling import ScrollingLabel
 from src.widgets.cava_widget import CavaWidget
 
+from PIL import Image as PILImage, ImageFilter
+
 class MprisViewerWin(Window):
     def __init__(self, parent_widget, **kwargs):
         super().__init__(
@@ -66,7 +68,7 @@ class MprisViewerWin(Window):
             children=[self.cover_art, text_box]
         )
 
-        main_box = Box(
+        self.main_box = Box(
             orientation="v",
             spacing=8,
             style_classes="popup-frame",
@@ -77,7 +79,7 @@ class MprisViewerWin(Window):
             ]
         )
         
-        self.add(main_box)
+        self.add(self.main_box)
         self.show_all()
         self.set_visible(False)
 
@@ -203,16 +205,45 @@ class MprisViewerWin(Window):
                 print(f"Command {command} failed: {e}")
 
     def load_cover(self, url):
+        # 1. Reset Defaults
+        if not url:
+            self.cover_art.set_from_icon_name("audio-x-generic", Gtk.IconSize.DIALOG)
+            self.main_box.set_style("background-image: none; background-color: #1e1e2e;") 
+            return
+
         if url.startswith("file://"):
             path = urllib.parse.unquote(url[7:])
+            
             if os.path.exists(path):
+                # 2. Set the sharp cover art (foreground)
                 try:
                     pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, 80, 80, True)
                     self.cover_art.set_from_pixbuf(pixbuf)
-                    return
                 except:
                     pass
-        self.cover_art.set_from_icon_name("audio-x-generic", Gtk.IconSize.DIALOG)
+
+                # 3. Generate Optimized Blur
+                try:
+                    blur_path = "/tmp/fabric_mpris_blur.jpg"
+                    
+                    with PILImage.open(path) as img:
+                        img.thumbnail((300, 300))
+                        
+                        # Apply Blur
+                        blurred = img.filter(ImageFilter.GaussianBlur(20))
+                        blurred.save(blur_path, quality=80) # Save as low-quality JPG for speed
+
+                    # 4. Set CSS
+                    css = f"""
+                        background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("file://{blur_path}");
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        border-radius: 12px;
+                    """
+                    self.main_box.set_style(css)
+                except Exception as e:
+                    print(f"Blur Error: {e}")
 
     def unwrap(self, val):
         if isinstance(val, GLib.Variant):
