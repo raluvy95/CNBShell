@@ -12,7 +12,6 @@ class KeyboardStatus(Box):
         self.led_path: str | None = self.find_numlock_path()
 
         if self.led_path:
-            print(self.led_path)
             GLib.timeout_add(150, self.check_status)
         else:
             print("No NumLock LED found.")
