@@ -277,7 +277,7 @@ class MprisPlayerBox(EventBox):
         self.cava_widget = CavaWidget()
         self.cava_widget.toggle_mode()
 
-        self.win = MprisViewerWin(parent_widget=self)
+        self.win = None
         
         self.title_label = ScrollingLabel()
         self.icon_label = Label(label="󰎇", style_classes="icon-label")
@@ -301,13 +301,27 @@ class MprisPlayerBox(EventBox):
 
         self.scan_for_players()
 
+    # Lazy loading
     def toggle_win(self, widget, event):
-        if self.win.get_visible():
-            self.win.hide()
-            self.win.on_hide()
+        # I am not sure this will clean up memory
+        if self.win is not None:
+            self.win.on_hide() 
+            self.win.close()
+            self.win.destroy()
+            self.win = None
+            
         else:
+            self.win = MprisViewerWin(parent_widget=self)
             self.win.show_all()
             self.win.on_show()
+            
+            # If we have cached metadata, push it to the new window immediately
+            if self.player_proxy:
+                metadata = self.player_proxy.get_cached_property("Metadata")
+                if metadata:
+                    # We need to unwrap strictly for the window
+                    data = metadata.unpack()
+                    self.win.update_ui(data)
 
     def scan_for_players(self):
         self.bus.call("org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames", None, None, Gio.DBusCallFlags.NONE, -1, None, self.on_list_names_result)
@@ -356,7 +370,7 @@ class MprisPlayerBox(EventBox):
         if metadata: 
             self.update_from_metadata(metadata)
         status = changed_properties.lookup_value("PlaybackStatus", GLib.VariantType("s"))
-        if status:
+        if status and self.win is not None:
             GLib.idle_add(self.win.update_status)
 
     def update_title(self):
@@ -372,6 +386,7 @@ class MprisPlayerBox(EventBox):
             text = str(title).strip() if title else "Unknown"
             
             GLib.idle_add(self.title_label.set_scrolling_text, text)
-            GLib.idle_add(self.win.update_ui, data)
+            if self.win is not None:
+                GLib.idle_add(self.win.update_ui, data)
         except Exception as e:
             print(f"[MprisBox] Metadata error: {e}")
