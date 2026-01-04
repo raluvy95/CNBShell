@@ -1,4 +1,3 @@
-import os
 import glob
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
@@ -6,15 +5,14 @@ from gi.repository import GLib # type: ignore
 
 class KeyboardStatus(Box):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs,
-                         visible=False,
-                         style_classes="kbstatus")
-        self.numlock_label = Label(label="󰎤", visible=False)
+        super().__init__(**kwargs)
+        self.numlock_label = Label(label="󰎤", visible=True)
         self.add(self.numlock_label)
 
         self.led_path: str | None = self.find_numlock_path()
 
         if self.led_path:
+            print(self.led_path)
             GLib.timeout_add(150, self.check_status)
         else:
             print("No NumLock LED found.")

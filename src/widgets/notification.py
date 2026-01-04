@@ -13,6 +13,7 @@ from fabric.utils import exec_shell_command
 from gi.repository import GLib, GdkPixbuf # type: ignore
 
 from src.widgets.dashboard import SystemDashboard
+from src.widgets.keyboardstatus import KeyboardStatus
 
 # --- CONFIG ---
 MAX_IMAGE_BYTES = 5 * 1024 * 1024  
@@ -66,15 +67,19 @@ class NotificationIndicator(Button):
 
         self.connect("clicked", self.toggle_dashboard)
         
-        self.layout_box = Box(orientation="h", spacing=15)
         self.net_label = Label(label="󰤯", style_classes="txt-icon")
-        self.layout_box.add(self.net_label)
         self.vol_label = Label(label="󰕾", style_classes="txt-icon")
-        self.layout_box.add(self.vol_label)
+        self.kbstatus = KeyboardStatus(style_classes="txt-icon")
         self.icon_label = Label(label="󰂚", style_classes="txt-icon") 
-        self.layout_box.add(self.icon_label)
         self.count_label = Label(label="0", style_classes="txt-count", visible=False)
-        self.layout_box.add(self.count_label)
+        self.layout_box = Box(orientation="h", spacing=15,
+                        children=[
+                            self.net_label,
+                            self.vol_label,
+                            self.kbstatus,
+                            self.icon_label,
+                            self.count_label
+                        ])
         self.add(self.layout_box)
         self.unread_count = 0
         
