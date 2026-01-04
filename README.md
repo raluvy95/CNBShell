@@ -27,9 +27,22 @@ A ready to use bar/shell for Hyprland based on [Fabric](https://github.com/Fabri
 You must initialize Python virtual environment to use my project
 
 ```sh
-python -m venv .venv
+python3 -m venv .venv
 ```
 
+Install required python dependencies. Make sure you are inside Python virtual environment
+```sh
+pip install -r requirements.txt
+```
+
+Execute the program via helper run or normal python program
+```sh
+./run # Recommended as you can execute from any directory in shell
+
+# or
+
+python3 main.py
+```
 
 # Developement
 Enforce a basic [Semantic Commit Messages](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716)
