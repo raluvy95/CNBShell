@@ -27,7 +27,7 @@ class MprisViewerWin(Window):
         # --- UI ELEMENTS ---
         self.cover_art = Image(name="cover-art", size=80)
         
-        self.title_label = ScrollingLabel() 
+        self.title_label = ScrollingLabel(max_chars=24) 
         self.artist_label = Label(label="-", style_classes="artist", h_align="start")
         self.album_label = Label(label="", style_classes="album", h_align="start")
 
