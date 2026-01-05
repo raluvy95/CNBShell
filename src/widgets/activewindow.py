@@ -135,7 +135,7 @@ class HyprlandActiveWindowWithIcon(Box):
             self.icon.set_from_icon_name("desktop", self.icon_size)
             return
         
-        self.label.set_label(truncate(str(win_class).capitalize(), 40))
+        self.label.set_label(truncate(str(win_title), 40))
         self.icon.set_visible(True)
 
         # 2. Icon Lookup

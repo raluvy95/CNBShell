@@ -1,17 +1,18 @@
 import sys
 from loguru import logger
 
+from src.utils.getrootdir import get_project_root
+
 logger.remove()
 logger.add(sys.stderr, level="WARNING")
 
 from fabric import Application
 from fabric.utils import monitor_file, get_relative_path, exec_shell_command, logger
-from src.statusbar import StatusBar, ClockPopup
+from src.statusbar import StatusBar
 from src.utils.threads import run_in_thread
 from src.utils.colors import Colors
-from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = get_project_root()
 MAIN_STYLE_DIR = BASE_DIR / "styles/main.scss"
 DIST_STYLE_DIR = BASE_DIR / "dist/main.css"
 
