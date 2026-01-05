@@ -5,7 +5,8 @@
     background-color: p.$red;
     padding: 0 10px;
     border-radius: 14px;
-    & > * {
+
+    &>* {
         @include a.flashing-animation;
         color: p.$crust;
     }

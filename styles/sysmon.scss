@@ -8,7 +8,7 @@
     padding: 0 10px;
     border-radius: 15px;
 
-    > .warning {
+    >.warning {
         @include a.flashing-animation;
         color: color.adjust(p.$red, $blackness: 20%);
     }
