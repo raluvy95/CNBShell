@@ -2,6 +2,7 @@ from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
 
+from src.config import SHELL_CONFIG
 from src.bar.leftbar import LeftBar
 from src.bar.rightbar import RightBar
 from src.popup.datetime import ClickableDateTime
@@ -42,7 +43,7 @@ class StatusBar(Window):
 
         self.clockmenu = ClockPopup()
         self.datetime = ClickableDateTime(self.on_click,
-                                    ("%x %H:%M", "%A %d %B %Y %T"),
+                                    (SHELL_CONFIG.clock['format'], "%A %d %B %Y %T"),
                                     style_classes="calendar")
         self.box = CenterBox(
             orientation="h",

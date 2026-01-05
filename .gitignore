@@ -1,5 +1,6 @@
 dist/*
 test.py
+shell.toml
 
 .venv
 .vscode
