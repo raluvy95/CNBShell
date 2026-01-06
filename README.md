@@ -44,6 +44,20 @@ Execute the program via helper run or normal python program
 python3 main.py
 ```
 
+# Configuration
+Currently, the only you can customize without editing Python and SCSS files is the clock format and that's it.
+
+
+>[!INFO]
+>I don't have a plan on expanding configuration as this bar is only intended for my use only.
+
+
+Here's the full example of config
+```toml
+[clock]
+format = "%T"
+```
+
 # Developement
 Enforce a basic [Semantic Commit Messages](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716)
 
