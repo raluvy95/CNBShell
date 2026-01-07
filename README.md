@@ -44,7 +44,7 @@ Execute the program via helper run or normal python program
 python3 main.py
 ```
 
-# Configuration
+# Configuring
 Currently, the only you can customize without editing Python and SCSS files is the clock format and that's it.
 
 
