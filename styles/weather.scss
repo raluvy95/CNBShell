@@ -1,0 +1,8 @@
+@use "pattern.scss" as p;
+
+.weather {
+    background-color: p.$blue;
+    padding: 0 10px;
+    color: p.$crust;
+    border-radius: 16px;
+}

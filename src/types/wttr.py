@@ -1,0 +1,187 @@
+from typing import TypedDict, List
+
+# Helper for fields that look like [{"value": "..."}]
+class WeatherValue(TypedDict):
+    value: str
+
+class CurrentCondition(TypedDict):
+    FeelsLikeC: str
+    FeelsLikeF: str
+    cloudcover: str
+    humidity: str
+    localObsDateTime: str
+    observation_time: str
+    precipInches: str
+    precipMM: str
+    pressure: str
+    pressureInches: str
+    temp_C: str
+    temp_F: str
+    uvIndex: str
+    visibility: str
+    visibilityMiles: str
+    weatherCode: str
+    weatherDesc: List[WeatherValue]
+    weatherIconUrl: List[WeatherValue]
+    winddir16Point: str
+    winddirDegree: str
+    windspeedKmph: str
+    windspeedMiles: str
+
+class Area(TypedDict):
+    areaName: List[WeatherValue]
+    country: List[WeatherValue]
+    latitude: str
+    longitude: str
+    population: str
+    region: List[WeatherValue]
+    weatherUrl: List[WeatherValue]
+
+class RequestInfo(TypedDict):
+    query: str
+    type: str
+
+class Astronomy(TypedDict):
+    moon_illumination: str
+    moon_phase: str
+    moonrise: str
+    moonset: str
+    sunrise: str
+    sunset: str
+
+class HourlyForecast(TypedDict):
+    DewPointC: str
+    DewPointF: str
+    FeelsLikeC: str
+    FeelsLikeF: str
+    HeatIndexC: str
+    HeatIndexF: str
+    WindChillC: str
+    WindChillF: str
+    WindGustKmph: str
+    WindGustMiles: str
+    chanceoffog: str
+    chanceoffrost: str
+    chanceofhightemp: str
+    chanceofovercast: str
+    chanceofrain: str
+    chanceofremdry: str
+    chanceofsnow: str
+    chanceofsunshine: str
+    chanceofthunder: str
+    chanceofwindy: str
+    cloudcover: str
+    diffRad: str
+    humidity: str
+    precipInches: str
+    precipMM: str
+    pressure: str
+    pressureInches: str
+    shortRad: str
+    tempC: str
+    tempF: str
+    time: str
+    uvIndex: str
+    visibility: str
+    visibilityMiles: str
+    weatherCode: str
+    weatherDesc: List[WeatherValue]
+    weatherIconUrl: List[WeatherValue]
+    winddir16Point: str
+    winddirDegree: str
+    windspeedKmph: str
+    windspeedMiles: str
+
+class DailyWeather(TypedDict):
+    astronomy: List[Astronomy]
+    avgtempC: str
+    avgtempF: str
+    date: str
+    hourly: List[HourlyForecast]
+    maxtempC: str
+    maxtempF: str
+    mintempC: str
+    mintempF: str
+    sunHour: str
+    totalSnow_cm: str
+    uvIndex: str
+
+class WttrInResponse(TypedDict):
+    current_condition: List[CurrentCondition]
+    nearest_area: List[Area]
+    request: List[RequestInfo]
+    weather: List[DailyWeather]
+
+
+WWO_CODE = {
+    "113": "Sunny",
+    "116": "PartlyCloudy",
+    "119": "Cloudy",
+    "122": "VeryCloudy",
+    "143": "Fog",
+    "176": "LightShowers",
+    "179": "LightSleetShowers",
+    "182": "LightSleet",
+    "185": "LightSleet",
+    "200": "ThunderyShowers",
+    "227": "LightSnow",
+    "230": "HeavySnow",
+    "248": "Fog",
+    "260": "Fog",
+    "263": "LightShowers",
+    "266": "LightRain",
+    "281": "LightSleet",
+    "284": "LightSleet",
+    "293": "LightRain",
+    "296": "LightRain",
+    "299": "HeavyShowers",
+    "302": "HeavyRain",
+    "305": "HeavyShowers",
+    "308": "HeavyRain",
+    "311": "LightSleet",
+    "314": "LightSleet",
+    "317": "LightSleet",
+    "320": "LightSnow",
+    "323": "LightSnowShowers",
+    "326": "LightSnowShowers",
+    "329": "HeavySnow",
+    "332": "HeavySnow",
+    "335": "HeavySnowShowers",
+    "338": "HeavySnow",
+    "350": "LightSleet",
+    "353": "LightShowers",
+    "356": "HeavyShowers",
+    "359": "HeavyRain",
+    "362": "LightSleetShowers",
+    "365": "LightSleetShowers",
+    "368": "LightSnowShowers",
+    "371": "HeavySnowShowers",
+    "374": "LightSleetShowers",
+    "377": "LightSleet",
+    "386": "ThunderyShowers",
+    "389": "ThunderyHeavyRain",
+    "392": "ThunderySnowShowers",
+    "395": "HeavySnowShowers",
+}
+
+WEATHER_SYMBOL = {
+    "Unknown": "",
+    "Cloudy": "󰖐",
+    "Fog": "󰖑",
+    "HeavyRain": "󰖖",
+    "HeavyShowers": "󰖖",
+    "HeavySnow": "󰼶",
+    "HeavySnowShowers": "󰙿",
+    "LightRain": "󰼳",
+    "LightShowers": "󰼳",
+    "LightSleet": "󰼵",
+    "LightSleetShowers": "󰼵",
+    "LightSnow": "󰼴",
+    "LightSnowShowers": "󰼴",
+    "PartlyCloudy": "󰖕",
+    "Sunny": "󰖙",
+    "ThunderyHeavyRain": "󰖓",
+    "ThunderyShowers": "󰙾",
+    "ThunderySnowShowers": "󰙾",
+    "VeryCloudy": "󰖐",
+}
