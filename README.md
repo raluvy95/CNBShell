@@ -48,7 +48,7 @@ python3 main.py
 Currently, the only you can customize without editing Python and SCSS files is the clock format and that's it.
 
 
->[!INFO]
+>[!NOTE]
 >I don't have a plan on expanding configuration as this bar is only intended for my use only.
 
 
