@@ -1,4 +1,6 @@
-# CNBShell
+![logo](./assets/cnbshelllogo.png)
+
+<h1 align=center>CNBShell</h1>
 
 A ready to use bar/shell for Hyprland based on [Fabric](https://github.com/Fabric-Development/fabric) and GTK3 written in Python. It is only intended to work on my laptop (Asus TUF Gaming F15).
 
@@ -10,7 +12,8 @@ A ready to use bar/shell for Hyprland based on [Fabric](https://github.com/Fabri
 - Workspace indicator
 - Time and calendar popup
 - Notification viewer, independent from any notification daemon and doesn't replace it.
-- Cava integration
+- Mpris with cava integration
+- Basic weather
 
 
 >[!IMPORTANT]
