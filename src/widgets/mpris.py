@@ -25,6 +25,7 @@ class MprisViewerWin(Window):
         self.parent_widget = parent_widget
         self.metadata = {}
         self.length = 0
+        self.dragging = False
         
         # --- UI ELEMENTS ---
         self.cover_art = Image(name="cover-art", size=80)
@@ -44,20 +45,23 @@ class MprisViewerWin(Window):
         self.position_scale.set_draw_value(False)
         self.position_scale.set_range(0, 100)
         self.position_scale.set_margin_top(4)
+        
+        # FIX: Connect interactions to prevent slider fighting
         self.position_scale.connect("change-value", self.on_seek)
+        self.position_scale.connect("button-press-event", self.on_drag_start)
+        self.position_scale.connect("button-release-event", self.on_drag_end)
         
         self.time_label = Label(label="00:00 / 00:00", style_classes="time-label")
 
-        # Controls - Grouped Tightly
+        # Controls
         self.btn_prev = Button(label="󰒮", on_clicked=lambda *_: self.send_command("Previous"))
         self.btn_play = Button(label="", on_clicked=lambda *_: self.send_command("PlayPause"))
         self.btn_next = Button(label="󰒭", on_clicked=lambda *_: self.send_command("Next"))
 
-        # CHANGED: Use a standard Box with h_align="center" to keep buttons close
         controls_box = Box(
             orientation="h",
-            spacing=15,          # Adjust this to move buttons closer/further
-            h_align="center",    # Center the group in the window
+            spacing=15,
+            h_align="center",
             children=[self.btn_prev, self.btn_play, self.btn_next]
         )
 
@@ -96,6 +100,15 @@ class MprisViewerWin(Window):
             GLib.source_remove(self.timeout_id)
             self.timeout_id = None
 
+    # --- FIX: Drag Handlers ---
+    def on_drag_start(self, widget, event):
+        self.dragging = True
+        return False # Propagate event
+
+    def on_drag_end(self, widget, event):
+        self.dragging = False
+        return False # Propagate event
+
     def update_ui(self, metadata):
         self.metadata = metadata
         
@@ -115,7 +128,6 @@ class MprisViewerWin(Window):
         self.load_cover(art_url)
 
         # Update Length
-        # Ensure this block exists in update_ui
         self.length = int(self.unwrap(metadata.get("mpris:length", 0)))
         if self.length > 0:
             self.position_scale.set_range(0, self.length)
@@ -139,35 +151,71 @@ class MprisViewerWin(Window):
             pass
 
     def update_position(self):
-        """Polls position via direct DBus call and updates slider."""
+        """Polls position and length via direct DBus call and updates slider."""
         if not self.parent_widget.player_proxy:
             return True
 
-        self.update_status()
-
         try:
-            # DIRECT DBUS CALL
+            # CHANGE: Use GetAll to fetch Metadata, Status, and Position in one go.
+            # This ensures that if the 'length' was missed during the track change signal,
+            # it self-corrects within 1 second.
             res = self.parent_widget.bus.call_sync(
                 self.parent_widget.current_player_name,
                 "/org/mpris/MediaPlayer2",
                 "org.freedesktop.DBus.Properties",
-                "Get",
-                GLib.Variant("(ss)", ("org.mpris.MediaPlayer2.Player", "Position")),
+                "GetAll",
+                GLib.Variant("(s)", ("org.mpris.MediaPlayer2.Player",)),
                 None,
                 Gio.DBusCallFlags.NONE,
                 -1,
                 None
             )
             
-            # SAFE UNPACK: specific fix for 'int object has no attribute unpack'
-            first_item = res.unpack()[0]
-            if isinstance(first_item, GLib.Variant):
-                pos_val = first_item.unpack()
-            else:
-                pos_val = first_item
+            properties = res.unpack()[0] # Unpack dictionary {str: variant}
 
-            # Update UI
-            self.position_scale.set_value(pos_val)
+            # 1. Update Position
+            pos_val = 0
+            if "Position" in properties:
+                pos_val = properties["Position"]
+                # Some players wrap it in a Variant, others don't when unpacked from GetAll
+                if isinstance(pos_val, GLib.Variant):
+                    pos_val = pos_val.unpack()
+
+            # 2. Update Status (Play/Pause Icon)
+            if "PlaybackStatus" in properties:
+                status = properties["PlaybackStatus"]
+                if isinstance(status, GLib.Variant):
+                    status = status.unpack()
+                
+                if status == "Playing":
+                    self.btn_play.set_label("")
+                else:
+                    self.btn_play.set_label("")
+
+            # 3. Update Length (The Fix for your glitch)
+            # We check the metadata specifically for the length property
+            if "Metadata" in properties:
+                meta = properties["Metadata"]
+                if isinstance(meta, GLib.Variant):
+                    meta = meta.unpack()
+                
+                # Extract length safely
+                new_length = 0
+                if "mpris:length" in meta:
+                    val = meta["mpris:length"]
+                    if isinstance(val, GLib.Variant):
+                        val = val.unpack()
+                    new_length = int(val)
+                
+                # If length changed (track change), update the slider range immediately
+                if new_length > 0 and new_length != self.length:
+                    self.length = new_length
+                    self.position_scale.set_range(0, self.length)
+
+            # 4. Update Slider Visuals
+            # Only update slider visually if user IS NOT dragging it
+            if not self.dragging:
+                self.position_scale.set_value(pos_val)
             
             cur_str = self.format_time(pos_val)
             tot_str = self.format_time(self.length)
@@ -175,6 +223,7 @@ class MprisViewerWin(Window):
             
         except Exception as e:
             # Fallback for display
+            print(f"Polling Error: {e}")
             tot_str = self.format_time(self.length)
             self.time_label.set_text(f"--:-- / {tot_str}")
         
@@ -230,7 +279,6 @@ class MprisViewerWin(Window):
                         img.thumbnail((300, 300))
                         
                         # FIX: Convert to RGB to support JPEG format
-                        # This discards transparency, which JPEGs cannot store
                         if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
                             img = img.convert("RGB")
                         
@@ -255,12 +303,20 @@ class MprisViewerWin(Window):
             return val.unpack()
         return val
 
+    # --- FIX: Hours support ---
     def format_time(self, microseconds):
         if not microseconds or microseconds < 0:
             return "00:00"
+        
         seconds = int(microseconds / 1000000)
-        m, s = divmod(seconds, 60)
-        return f"{m:02d}:{s:02d}"
+        
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{seconds:02d}"
+        
+        return f"{minutes:02d}:{seconds:02d}"
 
 # --- MprisPlayerBox ---
 class MprisPlayerBox(EventBox):
