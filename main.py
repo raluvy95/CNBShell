@@ -1,7 +1,9 @@
+import subprocess
 import sys
-from loguru import logger
+from os import system
+from argparse import ArgumentParser
 
-from src.utils.getrootdir import get_project_root
+from loguru import logger
 
 logger.remove()
 logger.add(sys.stderr, level="WARNING")
@@ -11,11 +13,16 @@ from fabric.utils import monitor_file, get_relative_path, exec_shell_command, lo
 from src.statusbar import StatusBar
 from src.utils.threads import run_in_thread
 from src.utils.colors import Colors
+from src.utils.getrootdir import get_project_root
+
+parser = ArgumentParser(description="A ready to use bar for Hyprland")
+parser.add_argument("-v", "--version", action="store_true", help="Show version and exit (useful for debugging)")
 
 BASE_DIR = get_project_root()
 MAIN_STYLE_DIR = BASE_DIR / "styles/main.scss"
 DIST_STYLE_DIR = BASE_DIR / "dist/main.css"
 
+__version__ = "1.0.0"
 
 def process_and_apply_css(app: Application):
     """Compile and apply CSS in background thread."""
@@ -53,5 +60,25 @@ class CNBShell(Application):
         self.run()
 
 if __name__ == "__main__":
-    CNBShell()
+    args = parser.parse_args()
+    if args.version:
+        # Default to just the stable version
+        version_str = f"CNBShell v{__version__}"
+        
+        try:
+            git_hash = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=BASE_DIR,
+                stderr=subprocess.DEVNULL
+            ).decode("utf-8").strip()
+            
+            version_str += f" ({git_hash})"
+            
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            pass 
+
+        print(version_str)
+    else:
+        CNBShell()
+    
 

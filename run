@@ -5,9 +5,17 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$SCRIPT_DIR/.venv/bin/activate"
 
 if [ "$1" == "dev" ]; then
-    pymon "$SCRIPT_DIR/main.py"
+    # User ran: ./script.sh dev --version
+    # We pass everything starting from the 2nd arg
+    pymon "$SCRIPT_DIR/main.py" "${@:2}"
+
 elif [ "$1" == "inspect" ]; then
-    GTK_DEBUG=interactive python3 "$SCRIPT_DIR/main.py"   
+    # User ran: ./script.sh inspect --version
+    # We pass everything starting from the 2nd arg
+    GTK_DEBUG=interactive python3 "$SCRIPT_DIR/main.py" "${@:2}"
+
 else
-    python3 "$SCRIPT_DIR/main.py"
+    # User ran: ./script.sh --version
+    # $1 is likely the flag itself, so we pass ALL args ("$@")
+    python3 "$SCRIPT_DIR/main.py" "$@"
 fi
