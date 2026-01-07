@@ -229,9 +229,14 @@ class MprisViewerWin(Window):
                     with PILImage.open(path) as img:
                         img.thumbnail((300, 300))
                         
+                        # FIX: Convert to RGB to support JPEG format
+                        # This discards transparency, which JPEGs cannot store
+                        if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
+                            img = img.convert("RGB")
+                        
                         # Apply Blur
                         blurred = img.filter(ImageFilter.GaussianBlur(20))
-                        blurred.save(blur_path, quality=80) # Save as low-quality JPG for speed
+                        blurred.save(blur_path, quality=80) 
 
                     # 4. Set CSS
                     css = f"""
