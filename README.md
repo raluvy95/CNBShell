@@ -4,6 +4,8 @@
 
 A ready to use bar/shell for Hyprland based on [Fabric](https://github.com/Fabric-Development/fabric) and GTK3 written in Python. It is only intended to work on my laptop (Asus TUF Gaming F15).
 
+Design inspired by [Tsumiki](https://github.com/rubiin/Tsumiki) and various posts I saw on r/unixporn
+
 # Features
 
 - System monitor
@@ -23,7 +25,11 @@ A ready to use bar/shell for Hyprland based on [Fabric](https://github.com/Fabri
 
 ## Required system dependencies
 
-`pipewire`, `pipewire-pulse`, `cava`, `mako`, `gtk3`, `dart-sass`
+`cava`, `mako`, `gtk3`, `dart-sass`, `dbus` 
+
+If you use `pipewire`, you need to get `pipewire-pulse` as this project uses libpulse python library. 
+
+I use `mako` for notification daemon, specifically to toggle do not distrub button.
 
 ## Setting up virtual environment
 
@@ -52,7 +58,7 @@ Currently, the only you can customize without editing Python and SCSS files is t
 
 
 >[!NOTE]
->I don't have a plan on expanding configuration as this bar is only intended for my use only.
+>I don't have a plan on expanding configuration as this bar is only intended for my use.
 
 
 Here's the full example of config
