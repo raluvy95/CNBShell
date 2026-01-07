@@ -1,4 +1,5 @@
 ![logo](./assets/cnbshelllogo.png)
+![screenshot](./assets/screenshot.png)
 
 <h1 align=center>CNBShell</h1>
 A ready to use bar/shell for Hyprland based on [Fabric](https://github.com/Fabric-Development/fabric) and GTK3 written in Python. It is only intended to work on my laptop (Asus TUF Gaming F15).
@@ -65,9 +66,6 @@ Here's the full example of config
 [clock]
 format = "%T"
 ```
-
-# Screenshot
-![screenshot](./assets/screenshot.png)
 
 # Developement
 Enforce a basic [Semantic Commit Messages](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716)
