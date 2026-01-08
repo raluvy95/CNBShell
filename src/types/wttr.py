@@ -185,3 +185,26 @@ WEATHER_SYMBOL = {
     "ThunderySnowShowers": "󰙾",
     "VeryCloudy": "󰖐",
 }
+
+# Works perfectly with Papirus icon theme installed
+WEATHER_SYMBOL_GTK = {
+    "Unknown": "weather-none-available",
+    "Cloudy": "weather-few-clouds",
+    "Fog": "weather-mist",
+    "HeavyRain": "weather-showers",
+    "HeavyShowers": "weather-showers",
+    "HeavySnow": "weather-snow",
+    "HeavySnowShowers": "weather-snow",
+    "LightRain": "weather-showers-scattered-day",
+    "LightShowers": "weather-showers-scattered-day",
+    "LightSleet": "weather-showers-scattered-day",
+    "LightSleetShowers": "weather-showers-scattered-day",
+    "LightSnow": "weather-snow-scattered-day",
+    "LightSnowShowers": "weather-snow-rain",
+    "PartlyCloudy": "weather-clouds",
+    "Sunny": "weather-clear",
+    "ThunderyHeavyRain": "weather-storm",
+    "ThunderyShowers": "weather-storm",
+    "ThunderySnowShowers": "weather-storm",
+    "VeryCloudy": "weather-many-clouds",
+}
