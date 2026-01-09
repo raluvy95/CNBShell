@@ -5,4 +5,97 @@
     padding: 0 10px;
     color: p.$crust;
     border-radius: 16px;
+
+    &:hover {
+        background-color: p.$sapphire;
+    }
+}
+
+// The Popup Window ID
+#WEATHER {
+    background-color: transparent; // Let the internal box handle the color
+
+    .weather-view {
+        background-color: p.$base;
+        padding: 20px 20px 20px 20px;
+        color: p.$text;
+        border: solid 2px p.$surface0;
+        border-radius: 16px;
+        min-width: 300px;
+
+        // Title / Location Header
+        .title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: p.$lavender;
+            margin-bottom: 10px;
+            border-bottom: 1px solid p.$surface0;
+            padding-bottom: 5px;
+        }
+
+        // Current Weather Section (Big Icon + Temp)
+        .current {
+            margin: 15px 0;
+
+            .icon {
+                font-size: 3rem;
+                color: p.$yellow;
+            }
+
+            .temp {
+                font-size: 2.5rem;
+                font-weight: bold;
+                color: p.$text;
+            }
+
+            .description {
+                font-size: 0.9rem;
+                color: p.$subtext0;
+                font-style: italic;
+            }
+        }
+
+        // The Scrollable Hourly Area
+        scrolledwindow {
+            min-height: 120px;
+
+            // Clean up the scrollbar track/slider
+            scrollbar {
+                background-color: transparent;
+
+                slider {
+                    min-height: 4px;
+                    min-width: 4px;
+                    background-color: p.$surface1;
+                    border-radius: 10px;
+
+                    &:hover {
+                        background-color: p.$overlay0;
+                    }
+                }
+            }
+        }
+
+        // The box inside the scroll (hourly_box)
+        .hourly-box {
+            margin-top: 10px;
+
+            // Individual Hour Cards
+            .hour-card {
+                background-color: p.$mantle;
+                border-radius: 12px;
+                padding: 10px;
+                margin-right: 8px;
+                border: 1px solid p.$surface0;
+
+                &:hover {
+                    border-color: p.$blue;
+                }
+
+                label {
+                    font-size: 0.85rem;
+                }
+            }
+        }
+    }
 }
