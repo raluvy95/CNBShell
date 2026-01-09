@@ -11,7 +11,6 @@ class SystemMonitor(Box):
         self.cpu_label = Label("cpu")
         self.mem_label = Label("mem")
         self.temp_label = Label("temp")
-        self.fan_label = Label("fan")
         self.net_label = Label("net")
         super().__init__(
             orientation="h",
@@ -19,8 +18,7 @@ class SystemMonitor(Box):
             children=[
                 self.cpu_label,
                 self.mem_label,
-                self.temp_label,
-                self.fan_label
+                self.temp_label
             ],
             style_classes="sysmon"
         )
@@ -38,28 +36,29 @@ class SystemMonitor(Box):
                 pass
 
         self.temp_label.set_tooltip_markup(tooltip)
-        self.temp_label.set_text(f" {current_temp}°C")
+        self.temp_label.set_text(f"")
 
         if current_temp >= 90:
+            self.temp_label.set_text(f" {current_temp}°C")
             self.temp_label.add_style_class("warning")
         else:
             self.temp_label.remove_style_class("warning")
 
     def update_mem(self):
         virt_mem = psutil.virtual_memory()
-        tooltip = "Memory:\n"
+        tooltip = "<b>Memory:</b>\n"
         formatted_used = '%.2f' % (virt_mem.used / 1028 / 1028 / 1028) + "G"
         formatted_free = '%.2f' % (virt_mem.free / 1028 / 1028 / 1028) + "G"
         formatted_perc = f"{virt_mem.percent}󰏰"
 
-        self.mem_label.set_text(" " + formatted_perc)
+        self.mem_label.set_text("")
         tooltip += f"Used: {formatted_used} {formatted_perc}\nFree: {formatted_free}\n"
 
         swap_mem = psutil.swap_memory()
         if swap_mem == 0:
             tooltip += "No swap memory"
         else:
-            tooltip += "\nSwap:\n"
+            tooltip += "\n<b>Swap:</b>\n"
             formatted_swap_used = '%.2f' % (swap_mem.used / 1028 / 1028 / 1028) + "G"
             formatted_swap_free = '%.2f' % (swap_mem.free / 1028 / 1028 / 1028) + "G"
             tooltip += f"Used: {formatted_swap_used} ({swap_mem.percent}󰏰)\nFree: {formatted_swap_free}"
@@ -67,6 +66,7 @@ class SystemMonitor(Box):
 
 
         if virt_mem.percent >= 70.0:
+            self.mem_label.set_text(" " + formatted_perc)
             self.mem_label.add_style_class("warning")
         else:
             self.mem_label.remove_style_class("warning")
@@ -76,7 +76,7 @@ class SystemMonitor(Box):
         perc_per_cpu = psutil.cpu_percent(percpu=True)
         is_cpu_consoooooooooming = len(list(filter(lambda x: x > 80, perc_per_cpu))) >= 1 or perc >= 60
 
-        self.cpu_label.set_text(f"󰍛 {perc}󰏰")
+        self.cpu_label.set_text(f"󰍛")
 
         tooltip = ''
         ii = 0
@@ -87,19 +87,14 @@ class SystemMonitor(Box):
         self.cpu_label.set_tooltip_markup(tooltip)
 
         if is_cpu_consoooooooooming:
+            self.cpu_label.set_text(f"󰍛 {perc}󰏰")
             self.cpu_label.add_style_class("warning")
         else:
             self.cpu_label.remove_style_class("warning")
-
-    def update_fan(self):
-        fan = psutil.sensors_fans()['asus'][0].current
-
-        self.fan_label.set_text(f"󰈐 {fan}")
 
     def update_stats(self):
         while True:
             GLib.idle_add(self.update_temp)
             GLib.idle_add(self.update_mem)
             GLib.idle_add(self.update_cpu)
-            GLib.idle_add(self.update_fan)
             time.sleep(2)
