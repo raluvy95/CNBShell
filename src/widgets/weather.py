@@ -6,7 +6,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.widgets.button import Button
 from fabric.widgets.scrolledwindow import ScrolledWindow  # Added ScrolledWindow
-from gi.repository import GLib # type: ignore
+from gi.repository import GLib, Gdk # type: ignore
 
 # Assuming your types exist in src.types.wttr
 from src.types.wttr import WEATHER_SYMBOL, WEATHER_SYMBOL_GTK, WWO_CODE, WttrInResponse, HourlyForecast
@@ -90,29 +90,67 @@ class WeatherWindow(Window):
             name="WEATHER",
             layer="top",
             anchor="top right",
-            margin="10px 10px 0px 0px", # Added margin right for aesthetics
+            margin="10px 10px 0px 0px",
+            keyboard_mode="on_demand", 
             visible=False,
             all_visible=False,
-            exclusive=True # Optional: keeps it above other windows
+            exclusive=True
         )
 
         self.parent = parent
-        
-        # Main container
+        self.close_timer = None # Variable to hold our timer ID
+
+        # 1. Connect Mouse Events
+        # When mouse enters the window -> Cancel closing
+        self.connect("enter-notify-event", self.on_mouse_enter)
+        # When mouse leaves the window -> Start closing timer
+        self.connect("leave-notify-event", self.on_mouse_leave)
+
+        # (Optional) Keep focus-out if you also want clicking elsewhere to close it immediately
+        # self.connect("focus-out-event", self.on_focus_out) 
+
         self.box = Box(
             orientation="v",
             style_classes="weather-view",
             spacing=12,
-            size=(340, -1) # Fixed size helps with scrolling
+            size=(340, -1)
         )
         self.add(self.box)
 
-        # Render immediately if data exists, else show loader
         if data:
             self.render_data(data)
         else:
             self.render_loading()
 
+    def on_mouse_enter(self, *_):
+        # Cancel the close timer if we enter/return to the window
+        if self.close_timer:
+            GLib.source_remove(self.close_timer)
+            self.close_timer = None
+
+    def on_mouse_leave(self, _, event):
+        # CRITICAL FIX: 
+        # Check if we are "leaving" to go to a child widget (INFERIOR).
+        # If so, we are still inside the window, so do nothing.
+        if event.detail == Gdk.NotifyType.INFERIOR:
+            return
+
+        # Otherwise, we truly left the window. Start the timer.
+        if self.close_timer:
+            GLib.source_remove(self.close_timer)
+        
+        # 500ms grace period
+        self.close_timer = GLib.timeout_add(500, self.do_close_window)
+
+    def do_close_window(self):
+        self.parent.toggle_window()
+        self.close_timer = None
+        return False
+    
+    def on_focus_out(self, *_):
+        self.parent.toggle_window() 
+        return False
+    
     def render_loading(self):
         self.box.children = [
             Box(v_align="center", h_align="center", children=[Label("Loading Weather...")])
