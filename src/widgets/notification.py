@@ -104,7 +104,7 @@ class NotificationIndicator(Button):
             self.count_label.set_visible(False)
             self.update_dnd_state() # Reset to standard/DND icon
             
-    def toggle_dashboard(self, *args):
+    def toggle_dashboard(self, *_):
         if self.dashboard.get_visible():
             self.dashboard.hide()
             self.unread_count = 0

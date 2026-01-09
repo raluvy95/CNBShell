@@ -101,11 +101,11 @@ class MprisViewerWin(Window):
             self.timeout_id = None
 
     # --- FIX: Drag Handlers ---
-    def on_drag_start(self, widget, event):
+    def on_drag_start(self, *_):
         self.dragging = True
         return False # Propagate event
 
-    def on_drag_end(self, widget, event):
+    def on_drag_end(self, *_):
         self.dragging = False
         return False # Propagate event
 

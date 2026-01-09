@@ -128,7 +128,7 @@ class SystemTray(Box):
         
         return False  # Return False to stop GLib.idle_add from repeating
 
-    def _on_child_notify_visible(self, child, _param):
+    def _on_child_notify_visible(self, *_):
         # When a child changes visibility, re-check the parent immediately
         self._update_visibility()
 
