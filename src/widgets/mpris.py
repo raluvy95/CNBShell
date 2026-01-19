@@ -363,7 +363,7 @@ class MprisPlayerBox(EventBox):
         self.scan_for_players()
 
     # Lazy loading
-    def toggle_win(self, widget, event):
+    def toggle_win(self, _, __):
         # I am not sure this will clean up memory
         if self.win is not None:
             self.win.on_hide() 
@@ -413,6 +413,9 @@ class MprisPlayerBox(EventBox):
         self.current_player_name = None
         self.player_proxy = None
         self.title_label.stop_scrolling()
+        if self.win is not None:
+            # close win
+            self.toggle_win(None, None)
         self.set_visible(False)
 
     def connect_to_player(self, bus_name):
