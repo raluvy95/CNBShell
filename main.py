@@ -1,6 +1,5 @@
 import subprocess
 import sys
-from os import system
 from argparse import ArgumentParser
 
 from loguru import logger
