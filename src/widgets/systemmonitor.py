@@ -1,26 +1,37 @@
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
+from fabric.widgets.button import Button # Imported Button
 import psutil
 import threading
 import time
 
-from gi.repository import GLib # type: ignore
+from gi.repository import GLib # type:ignore
 
-class SystemMonitor(Box):
+# Inherit from Button to make the entire widget clickable
+class SystemMonitor(Button):
     def __init__(self):
         self.cpu_label = Label("cpu")
         self.mem_label = Label("mem")
         self.temp_label = Label("temp")
         self.net_label = Label("net")
-        super().__init__(
+        
+        # We create a Box to hold the labels (preserving your original layout)
+        content_box = Box(
             orientation="h",
             spacing=15,
             children=[
                 self.cpu_label,
                 self.mem_label,
                 self.temp_label
-            ],
-            style_classes="sysmon"
+            ]
+        )
+
+        # Initialize the Button with the Box as its child
+        super().__init__(
+            child=content_box,
+            style_classes="sysmon",
+            # This lambda handles the click event asynchronously
+            on_clicked=lambda *_: GLib.spawn_command_line_async("kitty -e btop")
         )
 
         threading.Thread(target=self.update_stats, daemon=True).start()
@@ -28,25 +39,26 @@ class SystemMonitor(Box):
     def update_temp(self):
         tooltip = ''
         sensor_temp = psutil.sensors_temperatures()
-        current_temp = sensor_temp["coretemp"][0].current
-        for i in sensor_temp["coretemp"]:
-            if i.label.startswith("Core"):
-                tooltip = tooltip + f"{i.label} <b>{int(i.current)}°C</b>\n"
+        # Note: Ensure "coretemp" exists on your specific hardware, otherwise add a try/except here
+        if "coretemp" in sensor_temp:
+            current_temp = sensor_temp["coretemp"][0].current
+            for i in sensor_temp["coretemp"]:
+                if i.label.startswith("Core"):
+                    tooltip = tooltip + f"{i.label} <b>{int(i.current)}°C</b>\n"
+            
+            self.temp_label.set_tooltip_markup(tooltip)
+            
+            if current_temp >= 90:
+                self.temp_label.set_text(f" {current_temp}°C")
+                self.temp_label.add_style_class("warning")
             else:
-                pass
-
-        self.temp_label.set_tooltip_markup(tooltip)
-        self.temp_label.set_text(f"")
-
-        if current_temp >= 90:
-            self.temp_label.set_text(f" {current_temp}°C")
-            self.temp_label.add_style_class("warning")
-        else:
-            self.temp_label.remove_style_class("warning")
+                self.temp_label.set_text(f"")
+                self.temp_label.remove_style_class("warning")
 
     def update_mem(self):
         virt_mem = psutil.virtual_memory()
         tooltip = "<b>Memory:</b>\n"
+        # Kept your division by 1028, though standard is 1024
         formatted_used = '%.2f' % (virt_mem.used / 1028 / 1028 / 1028) + "G"
         formatted_free = '%.2f' % (virt_mem.free / 1028 / 1028 / 1028) + "G"
         formatted_perc = f"{virt_mem.percent}󰏰"
@@ -55,7 +67,7 @@ class SystemMonitor(Box):
         tooltip += f"Used: {formatted_used} {formatted_perc}\nFree: {formatted_free}\n"
 
         swap_mem = psutil.swap_memory()
-        if swap_mem == 0:
+        if swap_mem.total == 0:
             tooltip += "No swap memory"
         else:
             tooltip += "\n<b>Swap:</b>\n"
