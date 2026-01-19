@@ -31,6 +31,8 @@ If you use `pipewire`, you need to get `pipewire-pulse` as this project uses lib
 
 I use `mako` for notification daemon, specifically to toggle do not distrub button.
 
+Assuming you have `nmtui` (from Network Manager) and `btop` installed for launching from bar on click
+
 ## Setting up virtual environment
 
 You must initialize Python virtual environment to use my project
