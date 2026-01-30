@@ -14,6 +14,7 @@ class SystemMonitor(Button):
         self.mem_label = Label("mem")
         self.temp_label = Label("temp")
         self.net_label = Label("net")
+        self.fan_label = Label("fan")
         
         # We create a Box to hold the labels (preserving your original layout)
         content_box = Box(
@@ -22,7 +23,8 @@ class SystemMonitor(Button):
             children=[
                 self.cpu_label,
                 self.mem_label,
-                self.temp_label
+                self.temp_label,
+                self.fan_label
             ]
         )
 
@@ -103,10 +105,16 @@ class SystemMonitor(Button):
             self.cpu_label.add_style_class("warning")
         else:
             self.cpu_label.remove_style_class("warning")
+    
+    def update_fan(self):
+        fan = psutil.sensors_fans()['asus'][0].current
+
+        self.fan_label.set_text(f"󰈐 {'' if fan == 0 else fan}")
 
     def update_stats(self):
         while True:
             GLib.idle_add(self.update_temp)
             GLib.idle_add(self.update_mem)
             GLib.idle_add(self.update_cpu)
+            GLib.idle_add(self.update_fan)
             time.sleep(2)
