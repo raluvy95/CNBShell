@@ -13,7 +13,6 @@ class SystemMonitor(Button):
         self.cpu_label = Label("cpu")
         self.mem_label = Label("mem")
         self.temp_label = Label("temp")
-        self.net_label = Label("net")
         self.fan_label = Label("fan")
         
         # We create a Box to hold the labels (preserving your original layout)
