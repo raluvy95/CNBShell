@@ -1,3 +1,7 @@
+import setproctitle
+
+setproctitle.setproctitle("cnbshell")
+
 import subprocess
 import sys
 from argparse import ArgumentParser
