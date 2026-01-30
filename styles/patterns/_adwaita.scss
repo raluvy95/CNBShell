@@ -1,0 +1,45 @@
+// GNOME Adwaita (Libadwaita / HIG Official)
+// Source: https://gnome.pages.gitlab.gnome.org/libadwaita/doc/main/named-colors.html
+
+// --- The Greys (Neutrals) ---
+// Adwaita uses specific "Dark" levels.
+// Dark 1 (#1e1e1e) = Views (Lists, Text Editors) - Darkest
+// Dark 2 (#242424) = Windows / Backgrounds - Standard
+// Dark 3 (#303030) = Header Bars / Cards / Popovers - Lighter
+// Dark 4 (#383838) = Hover states
+// Dark 5 (#454545) = Active states
+
+$crust: #1e1e1e !default; // Dark 1 (The deepest background)
+$mantle: #242424 !default; // Dark 2 (Standard Window Background)
+$base: #242424 !default; // Using Dark 2 as base makes it feel less "void-like"
+$surface0: #303030 !default; // Dark 3 (Cards/Headers)
+$surface1: #383838 !default; // Dark 4
+$surface2: #454545 !default; // Dark 5
+$overlay0: #5e5c64 !default; // Dim Label
+$overlay1: #77767b !default; // Base Foreground
+$overlay2: #9a9996 !default; // Text Secondary
+$text: #ffffff !default; // Text Primary
+$subtext1: #9a9996 !default; // Mapped to Overlay 2 (Secondary Text)
+$subtext0: #77767b !default; // Mapped to Overlay 1 (Tertiary/Disabled Text)
+
+// --- The Accent Colors (GNOME Palette) ---
+// Adwaita uses the "Level 3" variant as the default accent.
+
+$blue: #3584e4 !default; // Blue 3 (Official GNOME Accent)
+$lavender: #78aeed !default; // Blue 1 (Lighter blue)
+$sapphire: #1c71d8 !default; // Blue 4 (Darker blue)
+$sky: #62a0ea !default; // Blue 2
+
+$teal: #93ddc9 !default; // Teal 1 (Adwaita doesn't strictly have teal, this is close)
+$green: #2ec27e !default; // Green 3 (Success)
+$yellow: #f6d32d !default; // Yellow 3 (Warning)
+$peach: #ff7800 !default; // Orange 3
+$maroon: #c01c28 !default; // Red 4 (Destructive)
+$red: #e01b24 !default; // Red 3 (Error)
+$mauve: #c061cb !default; // Purple 3
+$pink: #dc8add !default; // Purple 2
+$flamingo: $pink !default;
+$rosewater: #f6f5f4 !default; // Light bg equivalent
+
+// --- Default Accent ---
+$accent: $blue !default;

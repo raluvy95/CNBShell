@@ -1,0 +1,20 @@
+# Live load is supported only in themes
+# If you change anything besides themes
+# You must restart shell
+
+[clock]
+# Check out https://strftime.org/ for help with formatting
+format = "%x %H:%M"
+
+[theme]
+# Avaliable themes:
+# "catppuccin-mocha" - Default theme
+# "adwaita" - GNOME Adwaita Dark
+# "everforest" - Greenish theme
+# "gruvbox" - Orangeish Retro groove theme
+# "tokyo-night" - Alternative to catppuccin
+
+# You can possibly add custom theme inside styles/patterns
+# As long as you follow the variables respectively
+name = "catppuccin-mocha"
+accent = ""               # Hex color

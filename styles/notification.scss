@@ -1,6 +1,6 @@
 // Import the new dashboard styles
 @use "dashboard.scss";
-@use "pattern.scss" as p;
+@use "vars" as p;
 @use "sass:color";
 
 // --- MAIN INDICATOR BUTTON (Stays in Bar) ---
