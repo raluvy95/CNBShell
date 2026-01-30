@@ -1,3 +1,5 @@
+"$schema" = "./tomlschema.json"
+
 # Live load is supported only in themes
 # If you change anything besides themes
 # You must restart shell
@@ -17,4 +19,4 @@ format = "%x %H:%M"
 # You can possibly add custom theme inside styles/patterns
 # As long as you follow the variables respectively
 name = "catppuccin-mocha"
-accent = ""               # Hex color
+accent = ""
