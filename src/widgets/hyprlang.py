@@ -14,7 +14,7 @@ class Hyprlang(HyprlandLanguage):
             **kwargs
         )
         
-        self.connect('clicked', lambda *_: self.on_click())
+        self.connect('button-press-event', self.on_click)
 
     def get_emoji_and_update_tooltip(self, lang):   
 
@@ -28,8 +28,11 @@ class Hyprlang(HyprlandLanguage):
 
         return emoji
 
-    def on_click(self):
-        exec_shell_command("hyprctl switchxkblayout current next > /dev/null")
+    def on_click(self, widget, event):
+        action = "next"
+        if event.button == 3:
+            action = "prev"
+        exec_shell_command(f"hyprctl switchxkblayout current {action} > /dev/null")
 
 
     
