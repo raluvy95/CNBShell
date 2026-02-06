@@ -3,33 +3,32 @@
 @use "sass:color";
 
 button.sysmon {
-    // 1. Reset standard button styling to make it look like a flat box
     background-image: none;
     box-shadow: none;
     border: none;
     outline: none;
 
-    // 2. Apply your custom styling
     background-color: p.$teal;
     color: p.$crust;
-    padding: 0 10px;
-    border-radius: 15px;
+    border-radius: 14px; 
+    padding: 0 12px;
 
-    // Optional: Add a subtle hover effect since it is now interactive
+    // 5. Interactivity
     &:hover {
         background-color: color.adjust(p.$teal, $lightness: 5%);
     }
 
-    // Optional: Visual feedback when clicking
     &:active {
         background-color: color.adjust(p.$teal, $lightness: -5%);
     }
 
-    // 3. Changed "> .warning" to just ".warning" or "box > .warning"
-    // The labels are now inside a wrapper Box, so they are not direct children of the button.
+    // 6. Status styling
     .warning {
         @include a.flashing-animation;
-        // Ensure the warning text is readable on the teal/red mix
-        color: color.adjust(p.$red, $blackness: 20%);
+        color: #d20f39; 
+    }
+
+    .temp-icon {
+        margin-left: 6px;
     }
 }

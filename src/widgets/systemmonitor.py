@@ -5,14 +5,14 @@ import psutil
 import threading
 import time
 
-from gi.repository import GLib # type:ignore
+from gi.repository import GLib, Gtk # type:ignore
 
 # Inherit from Button to make the entire widget clickable
 class SystemMonitor(Button):
     def __init__(self):
         self.cpu_label = Label("cpu")
         self.mem_label = Label("mem")
-        self.temp_label = Label("temp")
+        self.temp_label = Label("temp", style_classes="temp-icon")
         self.fan_label = Label("fan")
         
         # We create a Box to hold the labels (preserving your original layout)
@@ -26,6 +26,8 @@ class SystemMonitor(Button):
                 self.fan_label
             ]
         )
+        content_box.set_halign(Gtk.Align.CENTER)
+        content_box.set_valign(Gtk.Align.CENTER)
 
         # Initialize the Button with the Box as its child
         super().__init__(
