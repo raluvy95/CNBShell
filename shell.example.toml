@@ -1,5 +1,3 @@
-"$schema" = "./tomlschema.json"
-
 # Live load is supported only in themes
 # If you change anything besides themes
 # You must restart shell
