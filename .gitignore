@@ -7,3 +7,5 @@ result*.json
 .vscode
 
 __pycache__
+
+styles/_vars.scss
