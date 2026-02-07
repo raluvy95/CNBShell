@@ -2,6 +2,14 @@
 @use "animation.scss" as a;
 
 #workspaces {
+
+    @if p.$root-background == transparent {
+        background-color: p.$crust;
+        padding-left: 12px;
+        padding-right: 6px;
+        border-radius: 14px;
+    }
+
     >button {
         background-color: p.$surface0;
         padding: 0 5px;

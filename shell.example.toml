@@ -13,10 +13,14 @@ format = "%x %H:%M"
 # "everforest" - Greenish theme
 # "gruvbox" - Orangeish Retro groove theme
 # "tokyo-night" - Alternative to catppuccin
-
 # "catppuccin-latte" - Light mode, NOT GUARANTEED TO HAVE READABLE TEXT
 
 # You can possibly add custom theme inside styles/patterns
 # As long as you follow the variables respectively
 name = "catppuccin-mocha"
+
+# Accent of the shell; Hex color only
 accent = ""
+
+# Set the background of shell as transparent
+transparency = false

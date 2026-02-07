@@ -50,8 +50,9 @@ class CNBShell(Application):
         # Defaults exist here if config is missing keys
         t_name = SHELL_CONFIG.theme.get("name", "catppuccin-mocha")
         t_accent = SHELL_CONFIG.theme.get("accent")
+        t_transparency = SHELL_CONFIG.theme.get("transparency", False);
         
-        apply_theme(self, t_name, t_accent, STYLE_SRC, DIST_CSS)
+        apply_theme(self, t_name, t_accent, t_transparency, STYLE_SRC, DIST_CSS)
 
     def on_config_change(self, monitor, file, other_file, event_type):
         if event_type == Gio.FileMonitorEvent.CHANGES_DONE_HINT:

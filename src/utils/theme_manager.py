@@ -14,6 +14,7 @@ def apply_theme(
     app: Application, 
     theme_name: str, 
     accent: Optional[str],  # Allow None
+    transparent: Optional[bool],
     style_src: Path, 
     dist_path: Path
 ):
@@ -29,19 +30,26 @@ def apply_theme(
     @run_in_thread
     def _task():
         try:
-            # 1. UPDATE BRIDGE (_vars.scss)
-            
-            # Logic: If accent is provided (and not empty), override it.
-            # Otherwise, just load the theme as-is.
-            if accent and accent.strip():
-                forward_line = f'@forward "patterns/{theme_name}" with ($accent: {accent} !default);'
-            else:
-                forward_line = f'@forward "patterns/{theme_name}";'
+            config_parts = []
 
-            vars_content = f"""
-// Generated from SHELL_CONFIG
-{forward_line}
-"""
+            # Add variables only if they meet your criteria
+            if accent and accent.strip():
+                config_parts.append(f"$accent: {accent} !default")
+
+            if transparent is True:
+                config_parts.append("$root-background: transparent !default")
+
+            # Construct the forward line
+            if config_parts:
+                # Join parts with a comma and wrap in 'with (...)'
+                with_clause = f" with ({', '.join(config_parts)})"
+            else:
+                with_clause = ""
+
+            forward_line = f'@forward "patterns/{theme_name}"{with_clause};'
+
+            vars_content = f"// Generated from SHELL_CONFIG\n{forward_line}\n"
+
             vars_file = style_src / "_vars.scss"
             
             # Smart Write (IO Optimization)
@@ -49,13 +57,11 @@ def apply_theme(
                 with open(vars_file, "w") as f:
                     f.write(vars_content)
 
-            # 2. COMPILE SASS
             main_scss = style_src / "main.scss"
             output = exec_shell_command(
                 f"sass {main_scss} {dist_path} --no-source-map --load-path={style_src}"
             )
 
-            # 3. VERIFY & APPLY
             if dist_path.exists():
                 css_data = dist_path.read_text().strip()
                 if css_data:
