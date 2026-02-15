@@ -1,5 +1,6 @@
 from fabric.widgets.box import Box
 
+from src.config import SHELL_CONFIG
 from src.widgets.systemtray import SystemTray
 from src.widgets.privacy import PrivacyIndicator
 from src.widgets.hyprlang import Hyprlang
@@ -18,7 +19,7 @@ class RightBar(Box):
             PrivacyIndicator(),
             Hyprlang(),
             SystemTray(icon_size=16, spacing=5),
-            Weather(),
+            *( [Weather()] if SHELL_CONFIG.weather.get("enable", True) else [] ),
             NotificationIndicator()
         ],
         name="RIGHT")

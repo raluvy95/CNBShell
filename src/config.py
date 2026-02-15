@@ -17,6 +17,7 @@ class ConfigParser:
         # Expose sections as properties for easy access
         self.clock = self.conf.get("clock", {'format': "%x %H:%M"})
         self.theme = self.conf.get("theme", {}) # defaults to empty dict if missing
+        self.weather = self.conf.get("weather", {})
 
 # Global Instance
 SHELL_CONFIG = ConfigParser()
