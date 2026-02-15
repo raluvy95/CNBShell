@@ -24,3 +24,11 @@ accent = ""
 
 # Set the background of shell as transparent
 transparency = false
+
+[weather]
+# Using wttr.in to make this possible
+
+# Enable weather
+# Recommend to leave it false to
+# avoid getting ratelimited by the service
+enable = false
