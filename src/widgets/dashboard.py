@@ -1,7 +1,8 @@
 import os
+from loguru import logger
 import psutil
 import socket
-import pulsectl # Mandatory import now
+import pulsectl
 
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
@@ -45,6 +46,7 @@ class QuickSettings(Box):
         self.vol_scale = Scale(min_value=0, max_value=100, orientation="h", h_expand=True)
         self.vol_scale.set_value(50)
         self.vol_scale.connect("value-changed", self.on_vol_change)
+        self.vol_scale.connect("button-release-event", self.on_vol_release)
         self.vol_box.add(self.vol_btn); self.vol_box.add(self.vol_scale)
         self.add(self.vol_box)
 
@@ -97,6 +99,10 @@ class QuickSettings(Box):
         GLib.idle_add(self._update_brightness_ui)
         GLib.idle_add(self._update_network_ui)
         if self.kbd_device: GLib.idle_add(self._update_kbd_ui)
+
+    def on_vol_release(self, widget, event):
+        exec_shell_command("pw-play /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga")
+        return False
 
     def _get_vol_data(self):
         # Retry connection if lost
