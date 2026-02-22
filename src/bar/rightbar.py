@@ -10,16 +10,17 @@ from src.widgets.weather import Weather
 
 class RightBar(Box):
     def __init__(self):
+        print(SHELL_CONFIG.sysmon.get("enable"))
         super().__init__(
         orientation="h",
         h_align="end",
         spacing=10,
         children=[
-            SystemMonitor(),
+            *( [SystemMonitor()] if SHELL_CONFIG.sysmon.get("enable", True) else [] ),
             PrivacyIndicator(),
             Hyprlang(),
-            *( [SystemTray()] if SHELL_CONFIG.weather.get("enable", True) else [] ),
-            *( [Weather()] if SHELL_CONFIG.sysmon.get("enable", True) else [] ),
+            SystemTray(),
+            *( [Weather()] if SHELL_CONFIG.weather.get("enable", True) else [] ),
             NotificationIndicator()
         ],
         name="RIGHT")

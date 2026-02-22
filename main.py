@@ -8,11 +8,10 @@ setproctitle.setproctitle("cnbshell")
 from src.config import SHELL_CONFIG  # <--- YOUR CONFIG CLASS
 from loguru import logger
 
-if SHELL_CONFIG.general.get("debug", False):
-    logger.debug("Enabled debugging info")
-else:
-    logger.remove()
-    logger.add(sys.stderr, level="WARNING")
+logging_level = SHELL_CONFIG.general.get("logging_level", "WARNING")
+
+logger.remove()
+logger.add(sys.stderr, level=logging_level)
 
 from fabric import Application
 from fabric.utils import monitor_file

@@ -1,34 +1,46 @@
-# Live load is supported only in themes
-# If you change anything besides themes
-# You must restart shell
+# ==========================================
+#  SHELL CONFIGURATION
+#  Note: Only theme changes are live-loaded.
+#  Restart the shell for all other changes.
+# ==========================================
+
+[general]
+# Logging Level: "DEBUG", "INFO", "WARNING" (Default: "WARNING")
+logging_level = "DEBUG"
 
 [clock]
-# Check out https://strftime.org/ for help with formatting
+# Time Format: Refer to https://strftime.org/
 format = "%x %H:%M"
 
 [theme]
-# Avaliable themes:
-# "catppuccin-mocha" - Default theme
-# "adwaita" - GNOME Adwaita Dark
-# "everforest" - Greenish theme
-# "gruvbox" - Orangeish Retro groove theme
-# "tokyo-night" - Alternative to catppuccin
-# "catppuccin-latte" - Light mode, NOT GUARANTEED TO HAVE READABLE TEXT
-
-# You can possibly add custom theme inside styles/patterns
-# As long as you follow the variables respectively
+# Theme Selection:
+# • catppuccin-mocha  (Default)
+# • adwaita           (GNOME Dark)
+# • everforest        (Greenish)
+# • gruvbox           (Retro Groove)
+# • tokyo-night       (High Contrast Dark)
+# • catppuccin-latte  (Light - experimental)
 name = "catppuccin-mocha"
 
-# Accent of the shell; Hex color only
+# Shell Accent: Hex color code (e.g., "#cba6f7")
 accent = ""
 
-# Set the background of shell as transparent
-transparency = false
+# Appearance: Enable background transparency
+transparency = true
 
 [weather]
-# Using wttr.in to make this possible
+# Weather Service: Powered by wttr.in
+enable = true
 
-# Enable weather
-# Recommend to leave it false to
-# avoid getting ratelimited by the service
-enable = false
+[sysmon]
+# System Monitor Widget:
+enable = true
+
+# Update Frequency: Seconds between refreshes
+interval = 2
+
+# Click Action: Command to execute (Empty string to disable)
+exec_on_click = "kitty -e btop"
+
+# Visibility: Keep current info visible during warning thresholds
+always_show_info = false
