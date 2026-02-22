@@ -6,7 +6,7 @@
 
 [general]
 # Logging Level: "DEBUG", "INFO", "WARNING" (Default: "WARNING")
-logging_level = "DEBUG"
+logging_level = "WARNING"
 
 [clock]
 # Time Format: Refer to https://strftime.org/
