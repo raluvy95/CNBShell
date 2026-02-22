@@ -5,9 +5,14 @@ from gi.repository import Gio # type:ignore
 
 setproctitle.setproctitle("cnbshell")
 
+from src.config import SHELL_CONFIG  # <--- YOUR CONFIG CLASS
 from loguru import logger
-logger.remove()
-logger.add(sys.stderr, level="WARNING")
+
+if SHELL_CONFIG.general.get("debug", False):
+    logger.debug("Enabled debugging info")
+else:
+    logger.remove()
+    logger.add(sys.stderr, level="WARNING")
 
 from fabric import Application
 from fabric.utils import monitor_file
@@ -15,7 +20,6 @@ from src.statusbar import StatusBar
 from src.utils.getrootdir import get_project_root
 
 # Import the centralized config and the dumb theme applicator
-from src.config import SHELL_CONFIG  # <--- YOUR CONFIG CLASS
 from src.utils.theme_manager import apply_theme
 
 # --- CONSTANTS ---

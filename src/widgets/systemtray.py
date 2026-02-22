@@ -82,7 +82,7 @@ class SystemTrayItem(Button):
 
 
 class SystemTray(Box):
-    def __init__(self, icon_size: int = 24, **kwargs):
+    def __init__(self, icon_size: int = 16, **kwargs):
         # Handle style classes
         style_classes = kwargs.pop("style_classes", [])
         if isinstance(style_classes, str):
@@ -90,7 +90,7 @@ class SystemTray(Box):
         if "systray" not in style_classes:
             style_classes.append("systray")
 
-        super().__init__(visible=False, style_classes=style_classes, **kwargs)
+        super().__init__(visible=False, style_classes=style_classes, spacing=5, **kwargs)
         
         self._icon_size = icon_size
         self._items: dict[str, SystemTrayItem] = {}

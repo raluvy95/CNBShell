@@ -18,8 +18,8 @@ class RightBar(Box):
             SystemMonitor(),
             PrivacyIndicator(),
             Hyprlang(),
-            SystemTray(icon_size=16, spacing=5),
-            *( [Weather()] if SHELL_CONFIG.weather.get("enable", True) else [] ),
+            *( [SystemTray()] if SHELL_CONFIG.weather.get("enable", True) else [] ),
+            *( [Weather()] if SHELL_CONFIG.sysmon.get("enable", True) else [] ),
             NotificationIndicator()
         ],
         name="RIGHT")
