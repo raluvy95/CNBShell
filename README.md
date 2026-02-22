@@ -8,6 +8,7 @@ Design inspired by [Tsumiki](https://github.com/rubiin/Tsumiki) and various post
 
 # Features
 
+- Configurable via [shell.toml](#configuring)
 - System monitor
 - Privacy indicator
 - System tray
@@ -15,19 +16,18 @@ Design inspired by [Tsumiki](https://github.com/rubiin/Tsumiki) and various post
 - Time and calendar popup
 - Notification viewer, independent from any notification daemon and doesn't replace it.
 - Mpris with cava integration
-- Basic weather
+- Weather
 
-
->[!IMPORTANT]
->Some features are AI generated. They are tested, modified by me and work on my machine. If you do not like my project because I used AI, don't complain and don't use my project
+> [!IMPORTANT]
+> Some features are AI generated. They are tested, modified by me and work on my machine. If you do not like my project because I used AI, don't complain and don't use my project
 
 # Installing
 
 ## Required system dependencies
 
-`cava`, `mako`, `gtk3`, `dart-sass`, `dbus` 
+`cava`, `mako`, `gtk3`, `dart-sass`, `dbus`
 
-If you use `pipewire`, you need to get `pipewire-pulse` as this project uses libpulse python library. 
+If you use `pipewire`, you need to get `pipewire-pulse` as this project uses libpulse python library.
 
 I use `mako` for notification daemon, specifically to toggle do not distrub button.
 
@@ -42,11 +42,13 @@ python3 -m venv .venv
 ```
 
 Install required python dependencies. Make sure you are inside Python virtual environment
+
 ```sh
 pip install -r requirements.txt
 ```
 
 Execute the program via helper run or normal python program
+
 ```sh
 ./run # Recommended as you can execute from any directory in shell
 
@@ -56,20 +58,15 @@ python3 main.py
 ```
 
 # Configuring
-Currently, the only you can customize without editing Python and SCSS files is the clock format and that's it.
 
+You can configure this shell, but it's not as fully configurable as waybar
 
->[!NOTE]
->I don't have a plan on expanding configuration as this bar is only intended for my use.
+Check out `shell.example.toml` for examples
 
-
-Here's the full example of config
-```toml
-[clock]
-format = "%T"
-```
+Copy example file into `shell.toml` and edit yourself.
 
 # Developement
+
 Enforce a basic [Semantic Commit Messages](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716)
 
 Since this project is heavly developed and I am currently using it. Some features and fixes are AI generated because... why not
