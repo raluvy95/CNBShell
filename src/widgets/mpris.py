@@ -46,7 +46,6 @@ class MprisViewerWin(Window):
         self.position_scale.set_range(0, 100)
         self.position_scale.set_margin_top(4)
         
-        # FIX: Connect interactions to prevent slider fighting
         self.position_scale.connect("change-value", self.on_seek)
         self.position_scale.connect("button-press-event", self.on_drag_start)
         self.position_scale.connect("button-release-event", self.on_drag_end)
@@ -54,15 +53,21 @@ class MprisViewerWin(Window):
         self.time_label = Label(label="00:00 / 00:00", style_classes="time-label")
 
         # Controls
-        self.btn_prev = Button(label="󰒮", on_clicked=lambda *_: self.send_command("Previous"))
-        self.btn_play = Button(label="", on_clicked=lambda *_: self.send_command("PlayPause"))
-        self.btn_next = Button(label="󰒭", on_clicked=lambda *_: self.send_command("Next"))
+        self.btn_shuffle = Button(label="󰒲", on_clicked=self.toggle_shuffle)
+        self.btn_prev = Button(label="󰒮",
+                               on_clicked=lambda *_: self.send_command("Previous"))
+        self.btn_play = Button(label="",
+                               on_clicked=lambda *_: self.send_command("PlayPause"))
+        self.btn_next = Button(label="󰒭",
+                               on_clicked=lambda *_: self.send_command("Next"))
+        self.btn_loop = Button(label="󰑗",
+                               on_clicked=self.toggle_loop)
 
         controls_box = Box(
             orientation="h",
             spacing=15,
             h_align="center",
-            children=[self.btn_prev, self.btn_play, self.btn_next]
+            children=[self.btn_shuffle, self.btn_prev, self.btn_play, self.btn_next, self.btn_loop]
         )
 
         # Layout
@@ -100,14 +105,13 @@ class MprisViewerWin(Window):
             GLib.source_remove(self.timeout_id)
             self.timeout_id = None
 
-    # --- FIX: Drag Handlers ---
     def on_drag_start(self, *_):
         self.dragging = True
-        return False # Propagate event
+        return False 
 
     def on_drag_end(self, *_):
         self.dragging = False
-        return False # Propagate event
+        return False 
 
     def update_ui(self, metadata):
         self.metadata = metadata
@@ -127,7 +131,6 @@ class MprisViewerWin(Window):
         art_url = str(self.unwrap(metadata.get("mpris:artUrl", "")))
         self.load_cover(art_url)
 
-        # Update Length
         self.length = int(self.unwrap(metadata.get("mpris:length", 0)))
         if self.length > 0:
             self.position_scale.set_range(0, self.length)
@@ -143,91 +146,48 @@ class MprisViewerWin(Window):
             status = self.parent_widget.player_proxy.get_cached_property("PlaybackStatus")
             if status:
                 status_str = status.unpack()
-                if status_str == "Playing":
-                    self.btn_play.set_label("")
-                else:
-                    self.btn_play.set_label("")
+                self.btn_play.set_label("" if status_str == "Playing" else "")
         except Exception:
             pass
 
     def update_position(self):
-        """Polls position and length via direct DBus call and updates slider."""
-        if not self.parent_widget.player_proxy:
-            return True
-
+        """Polls position and length via direct DBus call."""
+        if not self.parent_widget.player_proxy: return True
         try:
-            # CHANGE: Use GetAll to fetch Metadata, Status, and Position in one go.
-            # This ensures that if the 'length' was missed during the track change signal,
-            # it self-corrects within 1 second.
-            res = self.parent_widget.bus.call_sync(
-                self.parent_widget.current_player_name,
-                "/org/mpris/MediaPlayer2",
-                "org.freedesktop.DBus.Properties",
-                "GetAll",
-                GLib.Variant("(s)", ("org.mpris.MediaPlayer2.Player",)),
-                None,
-                Gio.DBusCallFlags.NONE,
-                -1,
-                None
-            )
-            
-            properties = res.unpack()[0] # Unpack dictionary {str: variant}
+            # Chromium timestamp is known to be broken, do not complain about it.
+            res = self.parent_widget.bus.call_sync(self.parent_widget.current_player_name,
+                                            "/org/mpris/MediaPlayer2",
+                                            "org.freedesktop.DBus.Properties",
+                                            "GetAll",
+                                            GLib.Variant("(s)", ("org.mpris.MediaPlayer2.Player",)),
+                                            None,
+                                            Gio.DBusCallFlags.NONE,
+                                            -1,
+                                            None)
+            properties = self.unwrap(res)[0]
 
-            # 1. Update Position
-            pos_val = 0
-            if "Position" in properties:
-                pos_val = properties["Position"]
-                # Some players wrap it in a Variant, others don't when unpacked from GetAll
-                if isinstance(pos_val, GLib.Variant):
-                    pos_val = pos_val.unpack()
-
-            # 2. Update Status (Play/Pause Icon)
-            if "PlaybackStatus" in properties:
-                status = properties["PlaybackStatus"]
-                if isinstance(status, GLib.Variant):
-                    status = status.unpack()
-                
-                if status == "Playing":
-                    self.btn_play.set_label("")
-                else:
-                    self.btn_play.set_label("")
-
-            # 3. Update Length (The Fix for your glitch)
-            # We check the metadata specifically for the length property
             if "Metadata" in properties:
-                meta = properties["Metadata"]
-                if isinstance(meta, GLib.Variant):
-                    meta = meta.unpack()
-                
-                # Extract length safely
-                new_length = 0
-                if "mpris:length" in meta:
-                    val = meta["mpris:length"]
-                    if isinstance(val, GLib.Variant):
-                        val = val.unpack()
-                    new_length = int(val)
-                
-                # If length changed (track change), update the slider range immediately
+                meta = self.unwrap(properties["Metadata"])
+                new_length = int(self.unwrap(meta.get("mpris:length", 0)))
+
                 if new_length > 0 and new_length != self.length:
                     self.length = new_length
                     self.position_scale.set_range(0, self.length)
 
-            # 4. Update Slider Visuals
-            # Only update slider visually if user IS NOT dragging it
+            pos_val = int(self.unwrap(properties.get("Position", 0)))
+
             if not self.dragging:
                 self.position_scale.set_value(pos_val)
-            
-            cur_str = self.format_time(pos_val)
-            tot_str = self.format_time(self.length)
-            self.time_label.set_text(f"{cur_str} / {tot_str}")
-            
+
+            status = self.unwrap(properties.get("PlaybackStatus", ""))
+            self.btn_play.set_label("" if status == "Playing" else "")
+            self.time_label.set_text(f"{self.format_time(pos_val)} / {self.format_time(self.length)}")
+
         except Exception as e:
-            # Fallback for display
             print(f"Polling Error: {e}")
-            tot_str = self.format_time(self.length)
-            self.time_label.set_text(f"--:-- / {tot_str}")
-        
+
         return True
+
 
     def on_seek(self, scale, scroll_type, value):
         if self.parent_widget.player_proxy:
@@ -253,8 +213,48 @@ class MprisViewerWin(Window):
             except Exception as e:
                 print(f"Command {command} failed: {e}")
 
+    def set_dbus_property(self, prop_name, signature, value):
+        if not self.parent_widget.player_proxy: return
+        try:
+            self.parent_widget.bus.call_sync(
+                self.parent_widget.current_player_name,
+                "/org/mpris/MediaPlayer2",
+                "org.freedesktop.DBus.Properties",
+                "Set",
+                GLib.Variant("(ssv)", (
+                    "org.mpris.MediaPlayer2.Player", 
+                    prop_name, 
+                    GLib.Variant(signature, value)
+                )),
+                None,
+                Gio.DBusCallFlags.NONE,
+                -1,
+                None
+            )
+            # Force immediate UI poll so toggles feel responsive
+            self.update_position()
+        except Exception as e:
+            print(f"Failed to set {prop_name}: {e}")
+
+    def toggle_shuffle(self, *_):
+        if not self.parent_widget.player_proxy: return
+        prop = self.parent_widget.player_proxy.get_cached_property("Shuffle")
+        if prop is not None:
+            current = self.unwrap(prop)
+            self.set_dbus_property("Shuffle", "b", not current)
+
+    def toggle_loop(self, *_):
+        if not self.parent_widget.player_proxy: return
+        prop = self.parent_widget.player_proxy.get_cached_property("LoopStatus")
+        if prop is not None:
+            current = self.unwrap(prop)
+            # MPRIS Spec cycles: None -> Playlist -> Track -> None
+            if current == "None": next_state = "Playlist"
+            elif current == "Playlist": next_state = "Track"
+            else: next_state = "None"
+            self.set_dbus_property("LoopStatus", "s", next_state)
+
     def load_cover(self, url):
-        # 1. Reset Defaults
         if not url:
             self.cover_art.set_from_icon_name("audio-x-generic", Gtk.IconSize.DIALOG)
             self.main_box.set_style("background-image: none; background-color: #1e1e2e;") 
@@ -264,29 +264,24 @@ class MprisViewerWin(Window):
             path = urllib.parse.unquote(url[7:])
             
             if os.path.exists(path):
-                # 2. Set the sharp cover art (foreground)
                 try:
                     pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, 80, 80, True)
                     self.cover_art.set_from_pixbuf(pixbuf)
                 except:
                     pass
 
-                # 3. Generate Optimized Blur
                 try:
                     blur_path = "/tmp/fabric_mpris_blur.jpg"
                     
                     with PILImage.open(path) as img:
                         img.thumbnail((300, 300))
                         
-                        # FIX: Convert to RGB to support JPEG format
                         if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
                             img = img.convert("RGB")
                         
-                        # Apply Blur
                         blurred = img.filter(ImageFilter.GaussianBlur(20))
                         blurred.save(blur_path, quality=80) 
 
-                    # 4. Set CSS
                     css = f"""
                         background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("file://{blur_path}");
                         background-size: cover;
@@ -303,7 +298,6 @@ class MprisViewerWin(Window):
             return val.unpack()
         return val
 
-    # --- FIX: Hours support ---
     def format_time(self, microseconds):
         if not microseconds or microseconds < 0:
             return "00:00"
