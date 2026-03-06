@@ -53,15 +53,21 @@ class MprisViewerWin(Window):
         self.time_label = Label(label="00:00 / 00:00", style_classes="time-label")
 
         # Controls
-        self.btn_shuffle = Button(label="󰒲", on_clicked=self.toggle_shuffle)
+        self.btn_shuffle = Button(label="󰒲",
+                            tooltip_text="Shuffle",
+                            on_clicked=self.toggle_shuffle)
         self.btn_prev = Button(label="󰒮",
-                               on_clicked=lambda *_: self.send_command("Previous"))
+                            tooltip_text="Previous",
+                            on_clicked=lambda *_: self.send_command("Previous"))
         self.btn_play = Button(label="",
-                               on_clicked=lambda *_: self.send_command("PlayPause"))
+                            tooltip_text="Play",
+                            on_clicked=lambda *_: self.send_command("PlayPause"))
         self.btn_next = Button(label="󰒭",
-                               on_clicked=lambda *_: self.send_command("Next"))
+                            tooltip_text="Next",
+                            on_clicked=lambda *_: self.send_command("Next"))
         self.btn_loop = Button(label="󰑗",
-                               on_clicked=self.toggle_loop)
+                            tooltip_text="Loop",
+                            on_clicked=self.toggle_loop)
 
         controls_box = Box(
             orientation="h",
