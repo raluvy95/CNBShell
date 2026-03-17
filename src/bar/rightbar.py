@@ -10,7 +10,6 @@ from src.widgets.weather import Weather
 
 class RightBar(Box):
     def __init__(self):
-        print(SHELL_CONFIG.sysmon.get("enable"))
         super().__init__(
         orientation="h",
         h_align="end",

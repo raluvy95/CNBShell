@@ -30,7 +30,7 @@ class MprisViewerWin(Window):
         # --- UI ELEMENTS ---
         self.cover_art = Image(name="cover-art", size=80)
         
-        self.title_label = ScrollingLabel(max_chars=24) 
+        self.title_label = ScrollingLabel(max_chars=12) 
         self.artist_label = Label(label="-", style_classes="artist", h_align="start")
         self.album_label = Label(label="", style_classes="album", h_align="start")
 
@@ -340,12 +340,10 @@ class MprisPlayerBox(EventBox):
 
         self.win = None
         
-        self.title_label = ScrollingLabel()
         self.icon_label = Label(label="󰎇", style_classes="icon-label")
 
         self.children_box.add(self.cava_widget)
         self.children_box.add(self.icon_label)
-        self.children_box.add(self.title_label)
         self.add(self.children_box)
 
         self.player_proxy = None
@@ -412,7 +410,6 @@ class MprisPlayerBox(EventBox):
     def disconnect_player(self):
         self.current_player_name = None
         self.player_proxy = None
-        self.title_label.stop_scrolling()
         if self.win is not None:
             # close win
             self.toggle_win(None, None)
@@ -445,11 +442,6 @@ class MprisPlayerBox(EventBox):
     def update_from_metadata(self, metadata_variant):
         try:
             data = metadata_variant.unpack()
-            title = data.get("xesam:title")
-            if isinstance(title, GLib.Variant): title = title.unpack()
-            text = str(title).strip() if title else "Unknown"
-            
-            GLib.idle_add(self.title_label.set_scrolling_text, text)
             if self.win is not None:
                 GLib.idle_add(self.win.update_ui, data)
         except Exception as e:
