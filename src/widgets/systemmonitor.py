@@ -18,7 +18,8 @@ class SystemMonitor(Button):
         self.temp_label = Label("temp", style_classes="temp-icon")
         self.fan_label = Label("fan")
         self.must_always_show_info = SHELL_CONFIG.sysmon.get("always_show_info", False)
-        self.is_fan_working = True 
+        self.is_fan_working = True
+        self.is_sensor_working = True
         # We create a Box to hold the labels (preserving your original layout)
         content_box = Box(
             orientation="h",
@@ -53,7 +54,9 @@ class SystemMonitor(Button):
     def update_temp(self):
         sensor_data = psutil.sensors_temperatures()
         if not sensor_data:
-           self.temp_label.set_text(" --°C")
+           logger.warning("Unable to obtain sensor data. Will hide instead.") 
+           self.temp_label.hide()
+           self.is_sensor_working = False
            return
 
         # Priority list for CPU temperature keys on Linux
@@ -179,7 +182,8 @@ class SystemMonitor(Button):
             time_sleep = 2
         while True:
             try:
-                GLib.idle_add(self.update_temp)
+                if self.is_sensor_working:
+                    GLib.idle_add(self.update_temp)
                 GLib.idle_add(self.update_mem)
                 GLib.idle_add(self.update_cpu)
                 if self.is_fan_working:
