@@ -153,7 +153,8 @@ class SystemMonitor(Button):
             fans = psutil.sensors_fans()
             if not fans:
                 self.is_fan_working = False
-                logger.warning("No fan found. Will always return zero")
+                logger.warning("No fan found. Will hide instead")
+                self.fan_label.hide()
                 return 0
 
             for device in fans.values():
@@ -165,8 +166,9 @@ class SystemMonitor(Button):
             return int(fans[first_device_name][0].current)
         
         except (IndexError, KeyError, StopIteration):
-            logger.warning("Couldn't find a fan. Will always return zero")
+            logger.warning("Couldn't find a fan. Will hide instead")
             self.is_fan_working = False
+            self.fan_label.hide()
             return 0
         
     def update_fan(self):
