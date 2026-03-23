@@ -128,8 +128,14 @@ class QuickSettings(Box):
                     default_sink = getattr(server_info, 'default_sink_name', None)
 
                 if default_sink:
-                    sink = self.pulse.get_sink_by_name(default_sink)
-                    return (round(sink.volume.value_flat * 100), sink.mute) # type: ignore
+                    if default_sink == "@DEFAULT_SINK@":
+                        sinks = self.pulse.sink_list()
+                        sink = sinks[0] if sinks else None
+                    else:
+                        sink = self.pulse.get_sink_by_name(default_sink)
+
+                    if sink:
+                        return (round(sink.volume.value_flat * 100), sink.mute) # type: ignore
             except Exception as e:
                 print(f"[Error] PulseAudio data retrieval failed: {e}")
                 self.pulse = None # Force re-init next time
