@@ -174,7 +174,14 @@ class QuickSettings(Box):
                      sink_name = server_info.get('default_sink_name')
                 
                 if sink_name:
-                    sink = self.pulse.get_sink_by_name(sink_name) # type: ignore
+                    if sink_name == "@DEFAULT_SINK@":
+                        sinks = self.pulse.sink_list()
+                        sink = sinks[0] if sinks else None
+                    else:
+                        sink = self.pulse.get_sink_by_name(sink_name)
+
+                    if not sink: return
+                    
                     self.pulse.volume_set_all_chans(sink, val / 100.0)
                     if sink.mute and val > 0: self.pulse.mute(sink, False) # type: ignore
                     self._update_volume_ui()
