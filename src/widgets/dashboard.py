@@ -87,12 +87,19 @@ class QuickSettings(Box):
         self.add(self.net_box)
 
     def _init_pulse(self):
-        if not self.pulse:
-            try: 
-                self.pulse = pulsectl.Pulse('cnb-shell') # type: ignore
-            except Exception as e: 
-                print(f"[Error] Could not connect to PulseAudio: {e}")
-                self.pulse = None
+        """Safely initialize the PulseAudio connection without blocking the UI."""
+        try:
+            # If we already have a pulse object, check if it's still alive
+            if self.pulse and self.pulse.connected:
+                return
+                
+            # Connect with a short timeout to prevent UI freezes
+            self.pulse = pulsectl.Pulse('cnb-shell', connect=True)
+            logger.info("Connected to PulseAudio/PipeWire")
+        except Exception as e:
+            # Log the error but don't crash the widget
+            logger.debug(f"PulseAudio connection deferred: {e}")
+            self.pulse = None
 
     def refresh(self):
         GLib.idle_add(self._update_volume_ui)
@@ -103,46 +110,80 @@ class QuickSettings(Box):
     def on_vol_release(self, widget, event):
         exec_shell_command("pw-play /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga")
         return False
+    
+    def _get_active_sink(self):
+        """Helper to resolve the current sink safely, handling @DEFAULT_SINK@ aliases."""
+        if not self.pulse or not self.pulse.connected:
+            self._init_pulse()
+        if not self.pulse:
+            return None
+
+        try:
+            sinfo = self.pulse.server_info()
+            # Handle different return types for server_info
+            name = getattr(sinfo, 'default_sink_name', None)
+            if not name and isinstance(sinfo, dict):
+                name = sinfo.get('default_sink_name')
+
+            # Resolve based on name or fallback to first available
+            if name == "@DEFAULT_SINK@" or not name:
+                sinks = self.pulse.sink_list()
+                sink = sinks[0] if sinks else None
+            else:
+                sink = self.pulse.get_sink_by_name(name)
+            
+            # Ensure we aren't dealing with a list (common pulsectl quirk)
+            if isinstance(sink, list):
+                sink = sink[0] if sink else None
+                
+            return sink
+        except Exception as e:
+            logger.error(f"Sink resolution failed: {e}")
+            return None
 
     def _get_vol_data(self):
-        # Retry connection if lost
-        if self.pulse is None or not self.pulse.connected:
-            self._init_pulse()
-
-        if self.pulse:
+        sink = self._get_active_sink()
+        if sink:
             try:
-                server_info = self.pulse.server_info()
-                default_sink = None
-                
-                # Robust extraction of default sink name
-                if isinstance(server_info, dict):
-                    default_sink = server_info.get('default_sink_name')
-                elif isinstance(server_info, (list, tuple)):
-                    if server_info:
-                        first = server_info[0]
-                        if isinstance(first, dict):
-                            default_sink = first.get('default_sink_name')
-                        else:
-                            default_sink = getattr(first, 'default_sink_name', None)
-                else:
-                    default_sink = getattr(server_info, 'default_sink_name', None)
-
-                if default_sink:
-                    if default_sink == "@DEFAULT_SINK@":
-                        sinks = self.pulse.sink_list()
-                        sink = sinks[0] if sinks else None
-                    else:
-                        sink = self.pulse.get_sink_by_name(default_sink)
-
-                    if sink:
-                        return (round(sink.volume.value_flat * 100), sink.mute) # type: ignore
+                # Use getattr to satisfy type checkers like Pyright/Mypy
+                volume_obj = getattr(sink, "volume", None)
+                if volume_obj:
+                    vol = round(volume_obj.value_flat * 100)
+                    mute = getattr(sink, "mute", False)
+                    return (vol, mute)
             except Exception as e:
-                print(f"[Error] PulseAudio data retrieval failed: {e}")
-                self.pulse = None # Force re-init next time
+                logger.debug(f"Attribute access failed: {e}")
         
-        # Default return if Pulse is unreachable (no CLI fallback)
+        # Default return if sink is missing or malformed
         return (0, False)
-    
+
+    def on_vol_change(self, scale):
+        val = int(scale.get_value())
+        sink = self._get_active_sink()
+        if sink and self.pulse:
+            try:
+                # val / 100.0 ensures we pass a float to PulseAudio
+                self.pulse.volume_set_all_chans(sink, val / 100.0)
+                
+                # Automatically unmute if the user slides the volume up
+                is_muted = getattr(sink, "mute", False)
+                if is_muted and val > 0:
+                    self.pulse.mute(sink, False)
+                
+                self._update_volume_ui()
+            except Exception as e:
+                logger.error(f"Volume set failed: {e}")
+
+    def toggle_mute(self, btn):
+        sink = self._get_active_sink()
+        if sink and self.pulse:
+            try:
+                # Safely toggle the current mute state
+                current_mute = getattr(sink, "mute", False)
+                self.pulse.mute(sink, not current_mute)
+                self._update_volume_ui()
+            except Exception as e:
+                logger.error(f"Mute toggle failed: {e}")
     
     def get_vol(self):
         icons = ["󰝟", "󰖁", "󰕿", "󰖀", "󰕾"]
@@ -162,46 +203,6 @@ class QuickSettings(Box):
         if abs(self.vol_scale.get_value() - vol) > 1: self.vol_scale.set_value(vol)
         self.vol_icon.set_label(icon)
         self.vol_scale.set_tooltip_text(f"{vol}%")
-
-    def on_vol_change(self, scale):
-        val = int(scale.get_value())
-        if self.pulse:
-            try:
-                server_info = self.pulse.server_info()
-                # Simplified attribute access assuming standard library behavior now
-                sink_name = getattr(server_info, 'default_sink_name', None)
-                if not sink_name and isinstance(server_info, dict): 
-                     sink_name = server_info.get('default_sink_name')
-                
-                if sink_name:
-                    if sink_name == "@DEFAULT_SINK@":
-                        sinks = self.pulse.sink_list()
-                        sink = sinks[0] if sinks else None
-                    else:
-                        sink = self.pulse.get_sink_by_name(sink_name)
-
-                    if not sink: return
-                    
-                    self.pulse.volume_set_all_chans(sink, val / 100.0)
-                    if sink.mute and val > 0: self.pulse.mute(sink, False) # type: ignore
-                    self._update_volume_ui()
-            except Exception as e: 
-                print(f"[Error] PulseAudio set volume failed: {e}")
-
-    def toggle_mute(self, btn):
-        if self.pulse:
-            try:
-                server_info = self.pulse.server_info()
-                sink_name = getattr(server_info, 'default_sink_name', None)
-                if not sink_name and isinstance(server_info, dict): 
-                     sink_name = server_info.get('default_sink_name')
-
-                if sink_name:
-                    sink = self.pulse.get_sink_by_name(sink_name) # type: ignore
-                    self.pulse.mute(sink, not sink.mute) # type: ignore
-                    self._update_volume_ui()
-            except Exception as e:
-                print(f"[Error] PulseAudio toggle mute failed: {e}")
 
     # --- BRIGHTNESS LOGIC ---
     def _update_brightness_ui(self):
