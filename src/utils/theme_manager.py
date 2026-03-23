@@ -15,6 +15,7 @@ def apply_theme(
     theme_name: str, 
     accent: Optional[str],  # Allow None
     transparent: Optional[bool],
+    font: Optional[str],
     style_src: Path, 
     dist_path: Path
 ):
@@ -38,6 +39,9 @@ def apply_theme(
 
             if transparent is True:
                 config_parts.append("$root-background: transparent !default")
+
+            if font and isinstance(font, str) and len(font) > 0:
+                config_parts.append(f"$font: {font} !default")
 
             # Construct the forward line
             if config_parts:
