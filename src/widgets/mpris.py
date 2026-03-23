@@ -9,6 +9,7 @@ from fabric.widgets.label import Label
 from fabric.widgets.button import Button
 from fabric.widgets.image import Image
 from fabric.widgets.wayland import WaylandWindow as Window
+from fabric.utils import logger
 from src.widgets.scrolling import ScrollingLabel
 from src.widgets.cava_widget import CavaWidget
 
@@ -190,24 +191,24 @@ class MprisViewerWin(Window):
             self.time_label.set_text(f"{self.format_time(pos_val)} / {self.format_time(self.length)}")
 
         except Exception as e:
-            print(f"Polling Error: {e}")
+            logger.error(f"Polling Error: {e}")
 
         return True
 
 
     def on_seek(self, scale, scroll_type, value):
         if self.parent_widget.player_proxy:
-             track_id = self.unwrap(self.metadata.get("mpris:trackid", ""))
-             try:
-                 self.parent_widget.player_proxy.call_sync(
+            track_id = self.unwrap(self.metadata.get("mpris:trackid", ""))
+            try:
+                self.parent_widget.player_proxy.call_sync(
                      "SetPosition",
                      GLib.Variant("(ox)", (track_id, int(value))),
                      Gio.DBusCallFlags.NONE,
                      -1,
                      None
-                 )
-             except Exception as e:
-                 print(f"Seek failed: {e}")
+                )
+            except Exception as e:
+                logger.error(f"Seek failed: {e}")
 
     def send_command(self, command):
         if self.parent_widget.player_proxy:
@@ -217,7 +218,7 @@ class MprisViewerWin(Window):
                 )
                 self.update_status()
             except Exception as e:
-                print(f"Command {command} failed: {e}")
+                logger.error(f"Command {command} failed: {e}")
 
     def set_dbus_property(self, prop_name, signature, value):
         if not self.parent_widget.player_proxy: return
@@ -240,7 +241,7 @@ class MprisViewerWin(Window):
             # Force immediate UI poll so toggles feel responsive
             self.update_position()
         except Exception as e:
-            print(f"Failed to set {prop_name}: {e}")
+            logger.error(f"Failed to set {prop_name}: {e}")
 
     def toggle_shuffle(self, *_):
         if not self.parent_widget.player_proxy: return
@@ -297,7 +298,7 @@ class MprisViewerWin(Window):
                     """
                     self.main_box.set_style(css)
                 except Exception as e:
-                    print(f"Blur Error: {e}")
+                    logger.error(f"Blur Error: {e}")
 
     def unwrap(self, val):
         if isinstance(val, GLib.Variant):
@@ -394,7 +395,7 @@ class MprisPlayerBox(EventBox):
                     self.connect_to_player(name)
                     return
         except Exception as e:
-            print(f"[MprisBox] Error listing names: {e}")
+            logger.error(f"[MprisBox] Error listing names: {e}")
 
     def on_dbus_name_changed(self, connection, sender_name, object_path, interface_name, signal_name, parameters, user_data):
         name, old_owner, new_owner = parameters.unpack()
@@ -424,7 +425,7 @@ class MprisPlayerBox(EventBox):
             self.update_title()
             GLib.idle_add(self.set_visible, True)
         except Exception as e:
-            print(f"[MprisBox] Failed to connect: {e}")
+            logger.error(f"[MprisBox] Failed to connect: {e}")
 
     def on_properties_changed(self, proxy, changed_properties, invalidated_properties):
         metadata = changed_properties.lookup_value("Metadata", GLib.VariantType("a{sv}"))
@@ -445,4 +446,4 @@ class MprisPlayerBox(EventBox):
             if self.win is not None:
                 GLib.idle_add(self.win.update_ui, data)
         except Exception as e:
-            print(f"[MprisBox] Metadata error: {e}")
+            logger.error(f"[MprisBox] Metadata error: {e}")

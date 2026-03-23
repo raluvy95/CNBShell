@@ -1,4 +1,4 @@
-from loguru import logger
+from fabric.utils import logger
 from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.widgets.button import Button

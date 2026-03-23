@@ -9,7 +9,7 @@ from PIL import Image
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
-from fabric.utils import exec_shell_command
+from fabric.utils import exec_shell_command, logger
 from gi.repository import GLib, GdkPixbuf # type: ignore
 
 from src.widgets.dashboard import SystemDashboard
@@ -164,7 +164,7 @@ class NotificationIndicator(Button):
         try:
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1, shell=False)
         except FileNotFoundError:
-            print("Error: dbus-monitor not installed.")
+            logger.error("Error: dbus-monitor not installed.")
             return
 
         atexit.register(lambda: process.terminate() if process.poll() is None else None)
@@ -261,7 +261,7 @@ class NotificationIndicator(Button):
                                 img.tobytes()
                             ]
                         except Exception as e:
-                            print(f"Image resize failed: {e}")
+                            logger.error(f"Image resize failed: {e}")
                             pass
                     in_image_struct = False
 

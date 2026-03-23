@@ -4,6 +4,7 @@ import math
 import gi
 import cairo
 from pathlib import Path
+from fabric.utils import logger
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib # type: ignore
@@ -55,8 +56,8 @@ class CavaWidget(Gtk.DrawingArea):
                 # Wait 0.1s to see if it dies immediately
                 stdout, stderr = self.cava_process.communicate(timeout=0.2)
                 if self.cava_process.returncode is not None and self.cava_process.returncode != 0:
-                    print(f"ERROR: Cava crashed with code {self.cava_process.returncode}")
-                    print(f"STDERR:\n{stderr}")
+                    logger.error(f"Cava crashed with code {self.cava_process.returncode}")
+                    logger.error(f"STDERR:\n{stderr}")
                     return
             except subprocess.TimeoutExpired:
                 # This is GOOD! It means Cava is still running.
@@ -67,9 +68,9 @@ class CavaWidget(Gtk.DrawingArea):
             threading.Thread(target=self._read_cava_output, daemon=True).start()
 
         except FileNotFoundError:
-            print("Error: 'cava' command not found in PATH.\nDid you install 'cava'?")
+            logger.error("'cava' command not found in PATH.\nDid you install 'cava'?")
         except Exception as e:
-            print(f"Error starting cava: {e}")
+            logger.error(f"Error starting cava: {e}")
 
     def _read_cava_output(self):
         while not self.stop_event.is_set() and self.cava_process:

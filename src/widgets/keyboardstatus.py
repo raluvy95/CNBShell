@@ -2,6 +2,7 @@ import glob
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from gi.repository import GLib # type: ignore
+from fabric.utils import logger
 
 class KeyboardStatus(Box):
     def __init__(self, **kwargs):
@@ -14,7 +15,7 @@ class KeyboardStatus(Box):
         if self.led_path:
             GLib.timeout_add(150, self.check_status)
         else:
-            print("No NumLock LED found.")
+            logger.warning("No NumLock LED found.")
 
     def find_numlock_path(self) -> str | None:
         # Find the first file ending in '::numlock/brightness'
@@ -33,6 +34,6 @@ class KeyboardStatus(Box):
                 self.numlock_label.set_text("󰎤" if is_on else "󰎦")
                     
         except Exception as e:
-            print(f"Error reading LED: {e}")
+            logger.error(f"Error reading LED: {e}")
             
         return True # Return True to keep the loop running

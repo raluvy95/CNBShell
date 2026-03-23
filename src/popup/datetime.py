@@ -1,11 +1,11 @@
 import gi
 import time
-from loguru import logger
 from typing import Literal
 from collections.abc import Iterable
 from fabric.widgets.button import Button
 from fabric.core.service import Property
 from fabric.utils.helpers import invoke_repeater
+from fabric.utils import logger
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Gdk # type: ignore

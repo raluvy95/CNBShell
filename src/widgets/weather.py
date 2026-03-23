@@ -6,6 +6,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.widgets.button import Button
 from fabric.widgets.scrolledwindow import ScrolledWindow  # Added ScrolledWindow
+from fabric.utils import logger
 from gi.repository import GLib, Gdk # type: ignore
 
 # Assuming your types exist in src.types.wttr
@@ -218,9 +219,9 @@ class Weather(Button):
                 w_data: WttrInResponse = resp.json()
                 GLib.idle_add(self.handle_data, w_data)
             else:
-                print(f"Failed to fetch weather: {resp.status}")
+                logger.error(f"Failed to fetch weather: {resp.status}")
         except Exception as e:
-            print(f"Error updating weather: {e}")
+            logger.error(f"Error updating weather: {e}")
 
     def toggle_window(self, *_):
         if self.window:

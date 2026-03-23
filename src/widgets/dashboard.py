@@ -1,5 +1,4 @@
 import os
-from loguru import logger
 import psutil
 import socket
 import pulsectl
@@ -12,7 +11,7 @@ from fabric.widgets.revealer import Revealer
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.scale import Scale
-from fabric.utils import exec_shell_command
+from fabric.utils import exec_shell_command, logger
 from gi.repository import GLib, Gtk, Gdk, Pango, GdkPixbuf # type: ignore
 
 # --- HELPERS ---
@@ -91,7 +90,7 @@ class QuickSettings(Box):
             try: 
                 self.pulse = pulsectl.Pulse('cnb-shell') # type: ignore
             except Exception as e: 
-                print(f"[Error] Could not connect to PulseAudio: {e}")
+                logger.error(f"Could not connect to PulseAudio: {e}")
                 self.pulse = None
 
     def _disable_volume(self, reason):
@@ -143,7 +142,7 @@ class QuickSettings(Box):
                     sink = self.pulse.get_sink_by_name(default_sink)
                     return (round(sink.volume.value_flat * 100), sink.mute) # type: ignore
             except Exception as e:
-                print(f"[Error] PulseAudio data retrieval failed: {e}")
+                logger.error(f"[Error] PulseAudio data retrieval failed: {e}")
                 self.pulse = None # Force re-init next time
         
         # Default return if Pulse is unreachable (no CLI fallback)
@@ -185,7 +184,7 @@ class QuickSettings(Box):
                     if sink.mute and val > 0: self.pulse.mute(sink, False) # type: ignore
                     self._update_volume_ui()
             except Exception as e: 
-                print(f"[Error] PulseAudio set volume failed: {e}")
+                logger.error(f"PulseAudio set volume failed: {e}")
 
     def toggle_mute(self, btn):
         if self.pulse:
@@ -200,7 +199,7 @@ class QuickSettings(Box):
                     self.pulse.mute(sink, not sink.mute) # type: ignore
                     self._update_volume_ui()
             except Exception as e:
-                print(f"[Error] PulseAudio toggle mute failed: {e}")
+                logger.error(f"PulseAudio toggle mute failed: {e}")
 
     # --- BRIGHTNESS LOGIC ---
     def _update_brightness_ui(self):

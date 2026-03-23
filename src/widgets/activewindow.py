@@ -7,7 +7,7 @@ from gi.repository import Gtk, GdkPixbuf # type: ignore
 from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.hyprland.service import Hyprland
-from fabric.utils import bulk_connect
+from fabric.utils import bulk_connect, logger
 
 class HyprlandActiveWindowWithIcon(Box):
     def __init__(self, icon_size=16, height=24, **kwargs):
@@ -67,7 +67,7 @@ class HyprlandActiveWindowWithIcon(Box):
         self.icon_theme.set_search_path(self.good_search_path)
         current_name = self.gtk_settings.props.gtk_icon_theme_name
         if current_name != self.good_theme_name:
-            print(f"[Auto-Fix] Reverting theme from '{current_name}' to '{self.good_theme_name}' (Reason: {reason})")
+            logger.info(f"[Auto-Fix] Reverting theme from '{current_name}' to '{self.good_theme_name}' (Reason: {reason})")
             self.gtk_settings.props.gtk_icon_theme_name = self.good_theme_name
 
     def on_theme_changed(self, *args):

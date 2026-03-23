@@ -2,6 +2,7 @@ import json
 import subprocess
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
+from fabric.utils import logger
 from gi.repository import GLib # type: ignore
 from src.utils.threads import run_in_thread
 
@@ -86,7 +87,7 @@ class PrivacyIndicator(Box):
             GLib.idle_add(self.update_ui, mic_apps, screen_apps)
 
         except Exception as e:
-            print(f"PrivacyIndicator Error: {e}")
+            logger.error(f"PrivacyIndicator Error: {e}")
 
     def update_ui(self, mic_apps, screen_apps):
         """

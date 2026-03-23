@@ -1,7 +1,7 @@
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button # Imported Button
-from loguru import logger
+from fabric.utils import logger
 import psutil
 import threading
 import time
