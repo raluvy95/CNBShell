@@ -28,6 +28,9 @@ accent = ""
 # Appearance: Enable background transparency
 transparency = true
 
+# Font (Nerd Font recommended)
+font = "MesloLGS Nerd Font"
+
 [weather]
 # Weather Service: Powered by wttr.in
 enable = true
@@ -44,3 +47,8 @@ exec_on_click = "kitty -e btop"
 
 # Visibility: Keep current info visible during warning thresholds
 always_show_info = false
+
+[keyboard-status]
+# Currently only numpad is implemented
+# Useful if you don't have physical LED on your numpad key
+enable = false

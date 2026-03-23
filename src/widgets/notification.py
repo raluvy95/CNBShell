@@ -12,6 +12,7 @@ from fabric.widgets.label import Label
 from fabric.utils import exec_shell_command, logger
 from gi.repository import GLib, GdkPixbuf # type: ignore
 
+from src.config import SHELL_CONFIG
 from src.widgets.dashboard import SystemDashboard
 from src.widgets.keyboardstatus import KeyboardStatus
 
@@ -69,14 +70,13 @@ class NotificationIndicator(Button):
         
         self.net_label = Label(label="󰤯", style_classes="txt-icon")
         self.vol_label = Label(label="󰕾", style_classes="txt-icon")
-        self.kbstatus = KeyboardStatus(style_classes="txt-icon")
         self.icon_label = Label(label="󰂚", style_classes="txt-icon") 
         self.count_label = Label(label="0", style_classes="txt-count", visible=False)
         self.layout_box = Box(orientation="h", spacing=15,
                         children=[
                             self.net_label,
                             self.vol_label,
-                            self.kbstatus,
+                            *( [KeyboardStatus(style_classes="txt-icon")] if SHELL_CONFIG.kbs.get("enable", True) else []),
                             self.icon_label,
                             self.count_label
                         ])

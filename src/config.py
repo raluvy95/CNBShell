@@ -19,6 +19,7 @@ class ConfigParser:
         self.theme = self.conf.get("theme", {}) # defaults to empty dict if missing
         self.weather = self.conf.get("weather", {'enable': True})
         self.sysmon = self.conf.get("sysmon", {})
+        self.kbs = self.conf.get("keyboard-status", {'enable': True})
         self.general = self.conf.get("general", {})
 
 # Global Instance
