@@ -158,28 +158,36 @@ class QuickSettings(Box):
         return (0, False)
 
     def on_vol_change(self, scale):
-        # 1. Quick exit if Pulse isn't ready to avoid blocking the UI thread
-        if not self.pulse or not self.pulse.connected:
-            return
-
         val = int(scale.get_value())
-        sink = self._get_active_sink()
         
-        if sink:
+        # 1. Update ONLY the UI immediately (Label/Tooltip)
+        # This keeps the slider moving smoothly even if PipeWire is slow
+        self.vol_icon.set_label(self.get_vol()[0])
+        self.vol_scale.set_tooltip_text(f"{val}%")
+
+        # 2. Debounce the PulseAudio call
+        # If a request is already pending, don't start another one immediately
+        if hasattr(self, "_vol_timer") and self._vol_timer:
+            GLib.source_remove(self._vol_timer)
+        
+        # 3. Schedule the actual hardware update 20ms in the future
+        # This collapses 50 slider movements into 1 hardware call
+        self._vol_timer = GLib.timeout_add(20, self._apply_vol_change, val)
+
+    def _apply_vol_change(self, val):
+        """Internal helper that runs the actual blocking PulseAudio call."""
+        sink = self._get_active_sink()
+        if sink and self.pulse:
             try:
-                # 2. Use volume_set_all_chans with a float
+                # Actual blocking call happens here, but less frequently
                 self.pulse.volume_set_all_chans(sink, val / 100.0)
-                
-                # 3. Only call mute/unmute if actually necessary to reduce IPC calls
-                is_muted = getattr(sink, "mute", False)
-                if is_muted and val > 0:
+                if getattr(sink, "mute", False) and val > 0:
                     self.pulse.mute(sink, False)
-                
-                # 4. Don't force a full UI refresh inside the slider move 
-                # (prevents recursive UI lag)
-                self.vol_icon.set_label(self.get_vol()[0])
             except Exception as e:
-                logger.debug(f"Volume sync skipped: {e}")
+                logger.debug(f"Pulse update skipped: {e}")
+        
+        self._vol_timer = None
+        return False # Don't repeat the timer
 
     def toggle_mute(self, btn):
         sink = self._get_active_sink()
