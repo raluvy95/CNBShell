@@ -158,21 +158,28 @@ class QuickSettings(Box):
         return (0, False)
 
     def on_vol_change(self, scale):
+        # 1. Quick exit if Pulse isn't ready to avoid blocking the UI thread
+        if not self.pulse or not self.pulse.connected:
+            return
+
         val = int(scale.get_value())
         sink = self._get_active_sink()
-        if sink and self.pulse:
+        
+        if sink:
             try:
-                # val / 100.0 ensures we pass a float to PulseAudio
+                # 2. Use volume_set_all_chans with a float
                 self.pulse.volume_set_all_chans(sink, val / 100.0)
                 
-                # Automatically unmute if the user slides the volume up
+                # 3. Only call mute/unmute if actually necessary to reduce IPC calls
                 is_muted = getattr(sink, "mute", False)
                 if is_muted and val > 0:
                     self.pulse.mute(sink, False)
                 
-                self._update_volume_ui()
+                # 4. Don't force a full UI refresh inside the slider move 
+                # (prevents recursive UI lag)
+                self.vol_icon.set_label(self.get_vol()[0])
             except Exception as e:
-                logger.error(f"Volume set failed: {e}")
+                logger.debug(f"Volume sync skipped: {e}")
 
     def toggle_mute(self, btn):
         sink = self._get_active_sink()
