@@ -142,52 +142,67 @@ class QuickSettings(Box):
             return None
 
     def _get_vol_data(self):
+        # 1. Check if we have a fresh cache (within 200ms)
+        # This prevents the API from freezing the UI during rapid bar updates
+        now = GLib.get_monotonic_time() / 1000  # Convert to milliseconds
+        if hasattr(self, "_vol_cache") and (now - self._vol_cache_time) < 200:
+            return self._vol_cache
+
         sink = self._get_active_sink()
         if sink:
             try:
-                # Use getattr to satisfy type checkers like Pyright/Mypy
                 volume_obj = getattr(sink, "volume", None)
                 if volume_obj:
                     vol = round(volume_obj.value_flat * 100)
                     mute = getattr(sink, "mute", False)
-                    return (vol, mute)
+                    # 2. Update the cache
+                    self._vol_cache = (vol, mute)
+                    self._vol_cache_time = now
+                    return self._vol_cache
             except Exception as e:
                 logger.debug(f"Attribute access failed: {e}")
         
-        # Default return if sink is missing or malformed
         return (0, False)
 
     def on_vol_change(self, scale):
+        """Update UI immediately, but delay the heavy PulseAudio call."""
         val = int(scale.get_value())
         
-        # 1. Update ONLY the UI immediately (Label/Tooltip)
-        # This keeps the slider moving smoothly even if PipeWire is slow
-        self.vol_icon.set_label(self.get_vol()[0])
+        # 1. Update ONLY the UI labels immediately
+        icons = ["󰝟", "󰖁", "󰕿", "󰖀", "󰕾"]
+        idx = 1
+        if val > 0: idx = 2
+        if val > 33: idx = 3
+        if val > 66: idx = 4
+        self.vol_icon.set_label(icons[idx])
         self.vol_scale.set_tooltip_text(f"{val}%")
 
-        # 2. Debounce the PulseAudio call
-        # If a request is already pending, don't start another one immediately
+        # 2. Debounce: Clear any pending update timer
         if hasattr(self, "_vol_timer") and self._vol_timer:
             GLib.source_remove(self._vol_timer)
-        
-        # 3. Schedule the actual hardware update 20ms in the future
-        # This collapses 50 slider movements into 1 hardware call
+            self._vol_timer = None
+
+        # 3. Schedule the hardware update 20ms in the future
+        # This prevents flooding the PipeWire socket on Artix
         self._vol_timer = GLib.timeout_add(20, self._apply_vol_change, val)
 
     def _apply_vol_change(self, val):
-        """Internal helper that runs the actual blocking PulseAudio call."""
+        """The actual blocking call, now isolated from the slider movement."""
         sink = self._get_active_sink()
         if sink and self.pulse:
             try:
-                # Actual blocking call happens here, but less frequently
+                # This is the line that normally causes the freeze
                 self.pulse.volume_set_all_chans(sink, val / 100.0)
-                if getattr(sink, "mute", False) and val > 0:
+                
+                # Auto-unmute logic
+                is_muted = getattr(sink, "mute", False)
+                if is_muted and val > 0:
                     self.pulse.mute(sink, False)
             except Exception as e:
-                logger.debug(f"Pulse update skipped: {e}")
+                logger.debug(f"Pulse sync skipped: {e}")
         
         self._vol_timer = None
-        return False # Don't repeat the timer
+        return False # Tells GLib to only run this once
 
     def toggle_mute(self, btn):
         sink = self._get_active_sink()
