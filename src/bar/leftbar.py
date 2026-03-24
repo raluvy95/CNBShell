@@ -1,5 +1,6 @@
 from fabric.widgets.box import Box
 
+from src.config import SHELL_CONFIG
 from src.widgets.workspace import Workspace
 from src.widgets.activewindow import HyprlandActiveWindowWithIcon
 from src.widgets.mpris import MprisPlayerBox
@@ -12,7 +13,7 @@ class LeftBar(Box):
         children=[
             Workspace(),
             MprisPlayerBox(),
-            HyprlandActiveWindowWithIcon()
+            *( [HyprlandActiveWindowWithIcon()] if SHELL_CONFIG.activew.get("enable", True) else [] )
         ],
         spacing=10,
         name="LEFT")

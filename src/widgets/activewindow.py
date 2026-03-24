@@ -1,12 +1,15 @@
 import json
 import os
 import gi
+
+from src.config import SHELL_CONFIG
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf # type: ignore
 
 from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.hyprland.service import Hyprland
+from fabric.widgets.label import Label
 from fabric.utils import bulk_connect, logger
 
 class HyprlandActiveWindowWithIcon(Box):
@@ -18,12 +21,12 @@ class HyprlandActiveWindowWithIcon(Box):
             **kwargs
         )
 
-        # 1. Widgets (Icon Only)
+        # 1. Widgets
         self.icon_size = icon_size
         self.icon = Image(size=self.icon_size)
-        
-        # No Label, just the Icon
-        self.children = [self.icon]
+        self.title = Label(visible=True)
+
+        self.children = [self.icon, self.title]
 
         # 2. Setup "The Guard"
         self.setup_icon_protection()
@@ -92,37 +95,34 @@ class HyprlandActiveWindowWithIcon(Box):
     def on_close_window(self, _, event):
         self.do_initialize()
 
-    def get_icon_name(self, win_class):
-        if not win_class: return "desktop"
-        cls = win_class.lower()
-        mapping = {
-            "code": "visual-studio-code",
-            "code-url-handler": "visual-studio-code",
-            "kitty": "kitty",
-            "foot": "terminal",
-            "terminal-ltr": "terminal",
-            "alacritty": "Alacritty",
-            "spotify": "spotify-client",
-            "google-chrome": "google-chrome",
-            "chromium": "chromium-browser",
-            "discord": "discord",
-            "steam-ltr": "steam",
-            "thunar": "system-file-manager",
-            "nautilus": "org.gnome.Nautilus",
-            "org.gnome.Nautilus": "org.gnome.Nautilus"
-        }
-        return mapping.get(cls, win_class)
+    def update_title(self, win_class):
+        if not win_class:
+            self.title.set_markup("<b>Desktop</b>")
+            return
+        
+        # You can customize title formatting here (e.g., Capitalization)
+        formatted_title = win_class.replace("-", " ").title()
+        self.title.set_markup(f"<b>{formatted_title}</b>")
+
+    def set_title_visible(self, visible: bool):
+        """Helper to toggle title visibility dynamically"""
+        self.title.set_visible(visible)
+        self.set_spacing(8 if visible else 0)
 
     def update_ui(self, win_class):
-        self.icon.set_visible(True)
-
+        if SHELL_CONFIG.activew.get("show_title", False):
+            self.update_title(win_class)
+        if SHELL_CONFIG.activew.get("show_icon", True):
+            self.icon.set_visible(True)
+        else:
+            return
         # 1. Check for empty class (Desktop)
         if not win_class:
             self.icon.set_from_icon_name("desktop", self.icon_size)
             return
 
         # 2. Resolve Icon Name
-        icon_name = self.get_icon_name(win_class)
+        icon_name = self.resolve_class_to_icon(win_class)
         theme = Gtk.IconTheme.get_default()
         
         # Strategy A: Mapped name
@@ -142,3 +142,25 @@ class HyprlandActiveWindowWithIcon(Box):
             
         # Strategy D: Fallback
         self.icon.set_from_icon_name("application-x-executable", self.icon_size)
+
+    def resolve_class_to_icon(self, win_class):
+        if not win_class: return "desktop"
+        cls = win_class.lower()
+        mapping = {
+            "code": "visual-studio-code",
+            "code-url-handler": "visual-studio-code",
+            "kitty": "kitty",
+            "foot": "terminal",
+            "terminal-ltr": "terminal",
+            "alacritty": "Alacritty",
+            "spotify": "spotify-client",
+            "google-chrome": "google-chrome",
+            "chromium": "chromium-browser",
+            "discord": "discord",
+            "steam-ltr": "steam",
+            "thunar": "system-file-manager",
+            "nautilus": "org.gnome.Nautilus",
+            "org.gnome.Nautilus": "org.gnome.Nautilus",
+            "org.telegram.desktop": "telegram"
+        }
+        return mapping.get(cls, win_class)
