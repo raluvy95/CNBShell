@@ -52,3 +52,14 @@ always_show_info = false
 # Currently only numpad is implemented
 # Useful if you don't have physical LED on your numpad key
 enable = false
+
+[active-window]
+# Displays active window's icon and title
+# If you don't show anything, just set enable = false
+enable = true
+show_icon = true
+show_title = false
+
+[arch-update]
+# Disabled outside of Arch-based distros
+enable = true

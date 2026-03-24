@@ -22,6 +22,7 @@ class ConfigParser:
         self.kbs = self.conf.get("keyboard-status", {'enable': True})
         self.general = self.conf.get("general", {})
         self.activew = self.conf.get("active-window", {})
+        self.archupd = self.conf.get("arch-update", {})
 
 # Global Instance
 SHELL_CONFIG = ConfigParser()

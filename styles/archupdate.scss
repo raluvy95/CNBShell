@@ -1,0 +1,86 @@
+@use "vars" as p;
+
+// --- 1. The Top Bar Button ---
+.archupdate {
+    background-color: p.$blue;
+    color: p.$base;
+    padding: 0px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    transition: background-color 200ms ease;
+
+    &:hover {
+        background-color: p.$lavender; // A slightly brighter pop on hover
+        color: p.$base;
+    }
+}
+
+// --- 2. The Popup Window ---
+.update-window {
+    // If your Wayland compositor adds shadows, keeping this transparent 
+    // and styling the box inside prevents ugly square black corners.
+    background-color: transparent; 
+}
+
+.main-container {
+    background-color: p.$base;
+    border: 2px solid p.$surface0; // Subtle Material border
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.header-label {
+    color: p.$text;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px; // Space between header and list
+}
+
+// Fix GTK's default solid background on ListBoxes
+list {
+    background-color: transparent;
+}
+
+// --- 3. The Package Rows ---
+.update-row {
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 150ms ease;
+
+    &:hover {
+        background-color: p.$surface0; // Material surface hover effect
+    }
+}
+
+.pkg-name {
+    color: p.$blue; // Make the package name stand out
+    font-weight: bold;
+}
+
+.pkg-version {
+    color: p.$subtext0; // Muted color for the version numbers
+    font-family: monospace; // Monospace keeps arrows and numbers aligned perfectly!
+}
+
+// Add this to your SCSS file
+scrollbar {
+    background-color: transparent;
+    
+    slider {
+        background-color: p.$surface1;
+        border-radius: 10px;
+        min-width: 8px;
+        transition: background-color 200ms;
+
+        &:hover {
+            background-color: p.$overlay0;
+        }
+    }
+}
+
+// Hide the scrollbar buttons (the little arrows)
+scrollbar button {
+    background-image: none;
+    border-style: none;
+    background-color: transparent;
+}

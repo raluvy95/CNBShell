@@ -7,6 +7,8 @@ from src.widgets.hyprlang import Hyprlang
 from src.widgets.notification import NotificationIndicator
 from src.widgets.systemmonitor import SystemMonitor
 from src.widgets.weather import Weather
+from src.widgets.archupdate import ArchUpdate
+from shutil import which
 
 class RightBar(Box):
     def __init__(self):
@@ -18,6 +20,7 @@ class RightBar(Box):
             *( [SystemMonitor()] if SHELL_CONFIG.sysmon.get("enable", True) else [] ),
             PrivacyIndicator(),
             Hyprlang(),
+            *( [ArchUpdate()] if SHELL_CONFIG.archupd.get("enable", True) and which("pacman") else []),
             SystemTray(),
             *( [Weather()] if SHELL_CONFIG.weather.get("enable", True) else [] ),
             NotificationIndicator()
