@@ -8,6 +8,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib #type:ignore
 import json
 from src.utils.checkupdate import checkupdate_main
+import difflib
 import threading
 from typing import TypedDict, List, Optional
 
@@ -58,6 +59,30 @@ class UpdateWin(Window):
             child=self.main_box  # <-- This stops Fabric from freaking out!
         )
         self.set_default_size(350, 400)
+    
+    def _get_diff_markup(self, old_ver: str, new_ver: str) -> str:
+        """Generates Pango markup for color-coded version diffs."""
+        matcher = difflib.SequenceMatcher(None, old_ver, new_ver)
+        old_markup = ""
+        new_markup = ""
+        
+        for opcode, a0, a1, b0, b1 in matcher.get_opcodes():
+            # Escape text for Pango to avoid XML parsing errors
+            old_chunk = GLib.markup_escape_text(old_ver[a0:a1])
+            new_chunk = GLib.markup_escape_text(new_ver[b0:b1])
+            
+            if opcode == 'equal':
+                old_markup += old_chunk
+                new_markup += new_chunk
+            elif opcode == 'replace':
+                old_markup += f"<span foreground='#f38ba8'>{old_chunk}</span>"
+                new_markup += f"<span foreground='#a6e3a1'>{new_chunk}</span>"
+            elif opcode == 'delete':
+                old_markup += f"<span foreground='#f38ba8'>{old_chunk}</span>"
+            elif opcode == 'insert':
+                new_markup += f"<span foreground='#a6e3a1'>{new_chunk}</span>"
+                
+        return f"{old_markup} → {new_markup}"
 
     def update_list(self, json_data):
         """Populates the listbox with update information."""
@@ -86,7 +111,9 @@ class UpdateWin(Window):
         name = Label(label=pkg.get("name", "Unknown"), style_classes="pkg-name")
         name.set_halign(Gtk.Align.START)
         
-        version = Label(label=f"{pkg.get('old_version')} → {pkg.get('new_version')}", style_classes="pkg-version")
+        diff_text = self._get_diff_markup(pkg.get('old_version', ''), pkg.get('new_version', ''))
+        version = Label(style_classes="pkg-version")
+        version.set_markup(diff_text)
         version.set_halign(Gtk.Align.END)
         version.set_hexpand(True)
         
