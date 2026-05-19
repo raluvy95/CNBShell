@@ -25,7 +25,7 @@ Design inspired by [Tsumiki](https://github.com/rubiin/Tsumiki) and various post
 
 ## Required system dependencies
 
-`cava`, `mako`, `gtk3`, `dart-sass`, `dbus`
+`cava`, `mako`, `gtk3`, `dart-sass`, `dbus`, `cmake`, `gtk-layer-shell`, `gobject-introspection`
 
 If you use `pipewire`, you need to get `pipewire-pulse` as this project uses libpulse python library.
 
