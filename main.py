@@ -4,14 +4,32 @@ from argparse import ArgumentParser
 from gi.repository import Gio # type:ignore
 
 setproctitle.setproctitle("cnbshell")
-
+from logging.handlers import SysLogHandler
 from src.config import SHELL_CONFIG
+import logging
 from loguru import logger
 
 logging_level = SHELL_CONFIG.general.get("logging_level", "WARNING")
-
 logger.remove()
 logger.add(sys.stderr, level=logging_level)
+
+# 2. Setup a standard stdlib logger to handle /dev/log
+stdlib_logger = logging.getLogger("cnbshell_log")
+stdlib_logger.setLevel(logging.INFO)
+
+syslog_handler = SysLogHandler(address='/dev/log', facility=SysLogHandler.LOG_USER)
+# journald extracts the app name and PID from this format
+formatter = logging.Formatter('cnbshell[%(process)d]: %(message)s')
+syslog_handler.setFormatter(formatter)
+stdlib_logger.addHandler(syslog_handler)
+
+# 3. Loguru sink just forwards the stripped string to the stdlib logger
+def journald_sink(message):
+    # .strip() removes the trailing newline loguru automatically adds
+    stdlib_logger.info(message.strip())
+
+# 4. Register the sink
+logger.add(journald_sink, level="INFO")
 
 from fabric import Application
 from fabric.utils import monitor_file
