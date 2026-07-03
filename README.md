@@ -27,6 +27,8 @@ Design inspired by [Tsumiki](https://github.com/rubiin/Tsumiki) and various post
 
 `cava`, `mako`, `gtk3`, `dart-sass`, `dbus`, `cmake`, `gtk-layer-shell`, `gobject-introspection`
 
+Requires `hyprland` 0.55+
+
 If you use `pipewire`, you need to get `pipewire-pulse` as this project uses libpulse python library.
 
 I use `mako` for notification daemon, specifically to toggle do not distrub button.

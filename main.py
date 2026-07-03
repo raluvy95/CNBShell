@@ -5,7 +5,7 @@ from gi.repository import Gio # type:ignore
 
 setproctitle.setproctitle("cnbshell")
 
-from src.config import SHELL_CONFIG  # <--- YOUR CONFIG CLASS
+from src.config import SHELL_CONFIG
 from loguru import logger
 
 logging_level = SHELL_CONFIG.general.get("logging_level", "WARNING")
